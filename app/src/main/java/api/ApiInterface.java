@@ -15,7 +15,6 @@ public interface ApiInterface
 {
 
     //DECLARE ALL API METHODS HERE
-
     @POST
     Call<CreatedUser> createUser(@Url String url,
                                  @Body CreateUser createUser);
