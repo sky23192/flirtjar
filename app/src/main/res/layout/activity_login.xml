@@ -12,9 +12,13 @@
     tools:context="com.app.flirtjar.ActivityLogin">
 
     <com.facebook.login.widget.LoginButton
+        xmlns:fb="http://schemas.android.com/apk/res-auto"
+        style="@style/FacebookLoginButton"
         android:id="@+id/btn_fbLogin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="220dp"
+        android:layout_height="80dp"
+        fb:com_facebook_login_text=""
+        fb:com_facebook_logout_text=""
         android:layout_centerInParent="true"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="30dp"

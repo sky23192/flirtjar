@@ -47,6 +47,8 @@ public class ActivityLogin extends AppCompatActivity implements FacebookCallback
 
         btnFbLogin.registerCallback(callbackManager, this);
 
+        btnFbLogin.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
+
     }
 
     @Override
