@@ -15,7 +15,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,15 +42,12 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
     @BindView(R.id.tv_lbl)
     TextView tv_lbl;
 
+    @BindView(R.id.layout_dots)
+    LinearLayout dotsLayout;
 
     @BindView(R.id.view_pager)
     ViewPager viewPager;
 
-    @BindView(R.id.layoutDots)
-    LinearLayout dotsLayout;
-
-    @BindView(R.id.btn_next)
-    Button btnNext;
     CallbackManager callbackManager;
     private MyViewPagerAdapter myViewPagerAdapter;
     private TextView[] dots;
@@ -66,12 +62,9 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
             // changing the next button text 'NEXT' / 'GOT IT'
             if (position == layouts.length - 1) {
                 // last page. make button text to GOT IT
-                btnNext.setText(getString(R.string.start));
-                //btnSkip.setVisibility(View.GONE);
+
             } else {
                 // still pages are left
-                btnNext.setText(getString(R.string.next));
-                //btnSkip.setVisibility(View.VISIBLE);
             }
         }
 
@@ -93,6 +86,8 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
 
         ButterKnife.bind(this);
 
+
+        btnFbLogin.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
 
         // Hide Status Bar
         if (Build.VERSION.SDK_INT < 16) {
@@ -146,20 +141,6 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
         viewPager.addOnPageChangeListener(viewPagerPageChangeListener);
 
 
-        btnNext.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // checking for last page
-                // if last page home screen will be launched
-                int current = getItem(+1);
-                if (current < layouts.length) {
-                    // move to next screen
-                    viewPager.setCurrentItem(current);
-                } else {
-//                    launchHomeScreen();
-                }
-            }
-        });
         Typeface face = Typeface.createFromAsset(getAssets(), "font/Pacifico-Regular.ttf");
         tv_lbl.setTypeface(face);
 
@@ -203,7 +184,6 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
             dots[i].setTextColor(colorsInactive[currentPage]);
             dotsLayout.addView(dots[i]);
         }
-
         if (dots.length > 0) {
             dots[currentPage].setTextColor(colorsActive[currentPage]);
         }
@@ -218,6 +198,8 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
         //CREATE NEW USER ON SERVER USING API
         Toast.makeText(this, "LOGIN SUCCESSFUL " + loginResult.getAccessToken().getToken(),
                 Toast.LENGTH_SHORT).show();
+        startActivity(new Intent(ActivityLogin.this, ActivityHome.class));
+
     }
 
     @Override

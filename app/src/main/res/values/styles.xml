@@ -8,4 +8,29 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="SettingTheme" parent="Theme.AppCompat.Light">
+        <item name="colorPrimaryDark">@color/black</item>
+        <item name="colorPrimary">@color/background</item>
+        <item name="colorAccent">@color/black</item>
+        <item name="android:homeAsUpIndicator">@mipmap/ic_back</item>
+    </style>
+
+    <style name="SwitchTheme" parent="Theme.AppCompat.Light">
+        <!-- active thumb & track color (30% transparency) -->
+        <item name="colorControlActivated">@color/splash_font</item>
+
+        <!-- inactive thumb color -->
+        <item name="colorSwitchThumbNormal">#64f1f1f1</item>
+
+        <!-- inactive track color (30% transparency) -->
+        <item name="android:colorForeground">#a1a0a0</item>
+    </style>
+
+    <style name="FacebookLoginButton">
+        <item name="android:textSize">25sp</item>
+        <item name="android:background">@drawable/login_with_facebook</item>
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:layout_marginBottom">10dp</item>
+        <item name="android:layout_gravity">center_horizontal</item>
+    </style>
 </resources>
