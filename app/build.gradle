@@ -49,6 +49,9 @@ dependencies {
     compile 'com.google.android.gms:play-services:10.0.1'
 
 
+    //Permission
+    compile 'gun0912.ted:tedpermission:1.0.2'
+
 }
 
 apply plugin: 'com.google.gms.google-services'
