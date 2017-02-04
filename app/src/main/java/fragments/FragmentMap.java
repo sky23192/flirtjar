@@ -13,7 +13,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 
-import butterknife.BindView;
 import butterknife.ButterKnife;
 
 /**
@@ -23,7 +22,6 @@ import butterknife.ButterKnife;
 public class FragmentMap extends Fragment implements OnMapReadyCallback
 {
 
-    @BindView(R.id.frag_map)
     SyncedMapFragment syncedMapFragment;
 
     private GoogleMap mMap;
@@ -34,6 +32,9 @@ public class FragmentMap extends Fragment implements OnMapReadyCallback
     {
         View view = inflater.inflate(R.layout.fragment_map, container, false);
         ButterKnife.bind(this, view);
+
+        syncedMapFragment = (SyncedMapFragment) this.getChildFragmentManager()
+                .findFragmentById(R.id.frag_map);
 
         syncedMapFragment.getMapAsync(this);
 

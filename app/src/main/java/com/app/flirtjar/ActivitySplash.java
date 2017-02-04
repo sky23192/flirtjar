@@ -8,19 +8,23 @@ import android.os.Handler;
 import android.view.View;
 import android.view.WindowManager;
 
-public class ActivitySplash extends Activity {
+public class ActivitySplash extends Activity
+{
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
 
         // Hide Status Bar
-        if (Build.VERSION.SDK_INT < 16) {
+        if (Build.VERSION.SDK_INT < 16)
+        {
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                     WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        } else {
+        } else
+        {
             View decorView = getWindow().getDecorView();
             // Hide Status Bar.
             int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
@@ -28,9 +32,11 @@ public class ActivitySplash extends Activity {
         }
 
 
-        new Handler().postDelayed(new Runnable() {
+        new Handler().postDelayed(new Runnable()
+        {
             @Override
-            public void run() {
+            public void run()
+            {
                 startActivity(new Intent(ActivitySplash.this, ActivityLogin.class));
             }
         }, 2000);

@@ -39,15 +39,6 @@ public class SyncedMapFragment extends SupportMapFragment
         return mWrapper;
     }
 
-    public void animateMarkerToGB(Marker marker, LatLng finalPosition, FragmentMap.LatLngInterpolator latLngInterpolator,
-                                  long duration)
-    {
-        if (mWrapper == null)
-        {
-            throw new IllegalStateException("FragmentMap view not yet created.");
-        }
-        mWrapper.animateMarkerToGB(marker, finalPosition, latLngInterpolator, duration);
-    }
 
 
     public static class MapViewWrapper extends FrameLayout
@@ -61,12 +52,6 @@ public class SyncedMapFragment extends SupportMapFragment
             setWillNotDraw(false);
         }
 
-        public void animateMarkerToGB(Marker marker, LatLng finalPosition, FragmentMap.LatLngInterpolator latLngInterpolator,
-                                      long duration)
-        {
-            mAnimations.add(new MarkerAnimation(marker, finalPosition, latLngInterpolator, duration));
-            invalidate();
-        }
 
         @Override
         protected void onDraw(Canvas canvas)
@@ -113,18 +98,16 @@ public class SyncedMapFragment extends SupportMapFragment
         final static Interpolator sInterpolator = new AccelerateDecelerateInterpolator();
 
         private final Marker mMarker;
-        private final FragmentMap.LatLngInterpolator mLatLngInterpolator;
         private final LatLng mStartPosition;
         private final LatLng mFinalPosition;
         private final long mDuration;
         private final long mStartTime;
 
 
-        public MarkerAnimation(Marker marker, LatLng finalPosition, FragmentMap.LatLngInterpolator latLngInterpolator,
+        public MarkerAnimation(Marker marker, LatLng finalPosition,
                                long duration)
         {
             mMarker = marker;
-            mLatLngInterpolator = latLngInterpolator;
             mStartPosition = marker.getPosition();
             mFinalPosition = finalPosition;
             mDuration = duration;
@@ -137,7 +120,6 @@ public class SyncedMapFragment extends SupportMapFragment
             long elapsed = AnimationUtils.currentAnimationTimeMillis() - mStartTime;
             float t = elapsed / (float) mDuration;
             float v = sInterpolator.getInterpolation(t);
-            mMarker.setPosition(mLatLngInterpolator.interpolate(v, mStartPosition, mFinalPosition));
 
             // Repeat till progress is complete.
             return (t < 1);

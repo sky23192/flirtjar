@@ -34,7 +34,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 
-public class ActivityLogin extends Activity implements FacebookCallback<LoginResult> {
+public class ActivityLogin extends Activity implements FacebookCallback<LoginResult>
+{
 
     @BindView(R.id.btn_fbLogin)
     LoginButton btnFbLogin;
@@ -53,34 +54,41 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
     private TextView[] dots;
     private int[] layouts;
     //  viewpager change listener
-    ViewPager.OnPageChangeListener viewPagerPageChangeListener = new ViewPager.OnPageChangeListener() {
+    ViewPager.OnPageChangeListener viewPagerPageChangeListener = new ViewPager.OnPageChangeListener()
+    {
 
         @Override
-        public void onPageSelected(int position) {
+        public void onPageSelected(int position)
+        {
             addBottomDots(position);
 
             // changing the next button text 'NEXT' / 'GOT IT'
-            if (position == layouts.length - 1) {
+            if (position == layouts.length - 1)
+            {
                 // last page. make button text to GOT IT
 
-            } else {
+            } else
+            {
                 // still pages are left
             }
         }
 
         @Override
-        public void onPageScrolled(int arg0, float arg1, int arg2) {
+        public void onPageScrolled(int arg0, float arg1, int arg2)
+        {
 
         }
 
         @Override
-        public void onPageScrollStateChanged(int arg0) {
+        public void onPageScrollStateChanged(int arg0)
+        {
 
         }
     };
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
@@ -90,10 +98,12 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
         btnFbLogin.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
 
         // Hide Status Bar
-        if (Build.VERSION.SDK_INT < 16) {
+        if (Build.VERSION.SDK_INT < 16)
+        {
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                     WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        } else {
+        } else
+        {
             View decorView = getWindow().getDecorView();
             // Hide Status Bar.
             int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
@@ -101,14 +111,17 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
         }
 
 
-        PermissionListener permissionlistener = new PermissionListener() {
+        PermissionListener permissionlistener = new PermissionListener()
+        {
             @Override
-            public void onPermissionGranted() {
+            public void onPermissionGranted()
+            {
 
             }
 
             @Override
-            public void onPermissionDenied(ArrayList<String> deniedPermissions) {
+            public void onPermissionDenied(ArrayList<String> deniedPermissions)
+            {
                 Log.d("DENIED PERMISSION", deniedPermissions.toString());
             }
 
@@ -134,7 +147,7 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
         addBottomDots(0);
 
         // making notification bar transparent
-//        changeStatusBarColor();
+        //        changeStatusBarColor();
 
         myViewPagerAdapter = new MyViewPagerAdapter();
         viewPager.setAdapter(myViewPagerAdapter);
@@ -144,10 +157,12 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
         Typeface face = Typeface.createFromAsset(getAssets(), "font/Pacifico-Regular.ttf");
         tv_lbl.setTypeface(face);
 
-        btnFbLogin.setOnClickListener(new View.OnClickListener() {
+        btnFbLogin.setOnClickListener(new View.OnClickListener()
+        {
 
             @Override
-            public void onClick(View v) {
+            public void onClick(View v)
+            {
                 Toast.makeText(ActivityLogin.this, "CLICKED", Toast.LENGTH_LONG).show();
             }
         });
@@ -170,31 +185,36 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
 
     }
 
-    private void addBottomDots(int currentPage) {
+    private void addBottomDots(int currentPage)
+    {
         dots = new TextView[layouts.length];
 
         int[] colorsActive = getResources().getIntArray(R.array.array_dot_active);
         int[] colorsInactive = getResources().getIntArray(R.array.array_dot_inactive);
 
         dotsLayout.removeAllViews();
-        for (int i = 0; i < dots.length; i++) {
+        for (int i = 0; i < dots.length; i++)
+        {
             dots[i] = new TextView(this);
             dots[i].setText(Html.fromHtml("&#8226;"));
             dots[i].setTextSize(35);
             dots[i].setTextColor(colorsInactive[currentPage]);
             dotsLayout.addView(dots[i]);
         }
-        if (dots.length > 0) {
+        if (dots.length > 0)
+        {
             dots[currentPage].setTextColor(colorsActive[currentPage]);
         }
     }
 
-    private int getItem(int i) {
+    private int getItem(int i)
+    {
         return viewPager.getCurrentItem() + i;
     }
 
     @Override
-    public void onSuccess(LoginResult loginResult) {
+    public void onSuccess(LoginResult loginResult)
+    {
         //CREATE NEW USER ON SERVER USING API
         Toast.makeText(this, "LOGIN SUCCESSFUL " + loginResult.getAccessToken().getToken(),
                 Toast.LENGTH_SHORT).show();
@@ -203,17 +223,20 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
     }
 
     @Override
-    public void onCancel() {
+    public void onCancel()
+    {
         Toast.makeText(this, "CANCELED", Toast.LENGTH_SHORT).show();
     }
 
     @Override
-    public void onError(FacebookException error) {
+    public void onError(FacebookException error)
+    {
         Toast.makeText(this, "ERROR", Toast.LENGTH_SHORT).show();
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
         super.onActivityResult(requestCode, resultCode, data);
         callbackManager.onActivityResult(requestCode, resultCode, data);
     }
@@ -221,14 +244,17 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
     /**
      * View pager adapter
      */
-    public class MyViewPagerAdapter extends PagerAdapter {
+    public class MyViewPagerAdapter extends PagerAdapter
+    {
         private LayoutInflater layoutInflater;
 
-        public MyViewPagerAdapter() {
+        public MyViewPagerAdapter()
+        {
         }
 
         @Override
-        public Object instantiateItem(ViewGroup container, int position) {
+        public Object instantiateItem(ViewGroup container, int position)
+        {
             layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
             View view = layoutInflater.inflate(layouts[position], container, false);
@@ -238,18 +264,21 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
         }
 
         @Override
-        public int getCount() {
+        public int getCount()
+        {
             return layouts.length;
         }
 
         @Override
-        public boolean isViewFromObject(View view, Object obj) {
+        public boolean isViewFromObject(View view, Object obj)
+        {
             return view == obj;
         }
 
 
         @Override
-        public void destroyItem(ViewGroup container, int position, Object object) {
+        public void destroyItem(ViewGroup container, int position, Object object)
+        {
             View view = (View) object;
             container.removeView(view);
         }

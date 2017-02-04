@@ -47,19 +47,21 @@
             android:name="com.facebook.CustomTabActivity"
             android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="@string/fb_login_protocol_scheme" />
+                <action android:name="android.intent.action.VIEW"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+
+                <data android:scheme="@string/fb_login_protocol_scheme"/>
             </intent-filter>
         </activity>
-        <activity android:name=".ActivityHome" />
+        <activity android:name=".ActivityHome"/>
         <activity
             android:name=".ActivitySetting"
             android:theme="@style/SettingTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ActivityHome" />
+                android:value=".ActivityHome"/>
         </activity>
     </application>
 
