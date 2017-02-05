@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_gravity="bottom"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:weightSum="5">
+
+        <ImageButton
+            android:id="@+id/ib_return"
+            android:layout_width="0dp"
+            android:layout_height="20dp"
+            android:layout_weight="1"
+            android:background="@mipmap/ic_return" />
+
+        <ImageButton
+            android:id="@+id/ibtn_dislike"
+            android:layout_width="0dp"
+            android:layout_height="25dp"
+            android:layout_weight="1"
+            android:background="@mipmap/ic_dislike" />
+
+        <ImageButton
+            android:id="@+id/ibtn_gift"
+            android:layout_width="0dp"
+            android:layout_height="25dp"
+            android:layout_weight="1"
+            android:background="@mipmap/ic_gift" />
+
+        <ImageButton
+            android:id="@+id/ibtn_like"
+            android:layout_width="0dp"
+            android:layout_height="20dp"
+            android:layout_weight="1"
+            android:background="@mipmap/ic_like" />
+
+        <ImageButton
+            android:id="@+id/ibtn_super_like"
+            android:layout_width="0dp"
+            android:layout_height="20dp"
+            android:layout_weight="1"
+            android:background="@mipmap/ic_superlike" />
+    </LinearLayout>
+
+    <com.mindorks.placeholderview.SwipePlaceHolderView
+        android:id="@+id/swipeview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</FrameLayout>
