@@ -28,28 +28,33 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.android.support:appcompat-v7:25.1.0'
-    testCompile 'junit:junit:4.12'
-
-    compile 'com.facebook.android:facebook-android-sdk:[4,5)'
-
-    compile 'com.jakewharton:butterknife:8.4.0'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:8.4.0'
 
     // retrofit, gson
+
+    //Permission
+
+    // retrofit, gson
+
+    //Permission
+
+
+    compile 'com.android.support:appcompat-v7:25.1.0'
+    compile 'com.facebook.android:facebook-android-sdk:[4,5)'
+    compile 'com.jakewharton:butterknife:8.4.0'
     compile 'com.google.code.gson:gson:2.6.2'
     compile 'com.squareup.retrofit2:retrofit:2.0.2'
     compile 'com.squareup.retrofit2:converter-gson:2.0.2'
     compile 'com.squareup.okhttp3:logging-interceptor:3.2.0'
-
     compile 'com.mobsandgeeks:android-saripaar:2.0.3'
-
     compile 'com.github.bumptech.glide:glide:3.7.0'
-
     compile 'com.google.android.gms:play-services:10.0.1'
-
-    //Permission
     compile 'gun0912.ted:tedpermission:1.0.2'
+    compile 'com.edmodo:rangebar:1.0.0'
+    compile 'com.android.support:design:25.1.0'
+    testCompile 'junit:junit:4.12'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.4.0'
+
+    compile 'com.aurelhubert:ahbottomnavigation:2.0.4'
 
 }
 
