@@ -5,11 +5,11 @@
     android:layout_gravity="center">
 
     <ImageView
-        android:id="@+id/imageView1"
+        android:id="@+id/imageView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:src="@drawable/ic_welcome_1" />
+        android:src="@drawable/ic_welcome_4" />
 </RelativeLayout>
