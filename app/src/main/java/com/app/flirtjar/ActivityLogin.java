@@ -40,9 +40,6 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
     @BindView(R.id.btn_fbLogin)
     LoginButton btnFbLogin;
 
-    @BindView(R.id.tv_lbl)
-    TextView tv_lbl;
-
     @BindView(R.id.layout_dots)
     LinearLayout dotsLayout;
 
@@ -140,8 +137,8 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
         layouts = new int[]{
                 R.layout.welcome_slide1,
                 R.layout.welcome_slide2,
-                R.layout.welcome_slide1,
-                R.layout.welcome_slide2};
+                R.layout.welcome_slide3,
+                R.layout.welcome_slide4};
 
         // adding bottom dots
         addBottomDots(0);
@@ -153,9 +150,6 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
         viewPager.setAdapter(myViewPagerAdapter);
         viewPager.addOnPageChangeListener(viewPagerPageChangeListener);
 
-
-        Typeface face = Typeface.createFromAsset(getAssets(), "font/Pacifico-Regular.ttf");
-        tv_lbl.setTypeface(face);
 
         btnFbLogin.setOnClickListener(new View.OnClickListener()
         {
@@ -241,6 +235,20 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
         callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
+    public void changeFontForAllTextViews(LinearLayout layout)
+    {
+        final Typeface face = Typeface.createFromAsset(getAssets(), "font/Pacifico-Regular.ttf");
+
+        for (int i = 0; i < layout.getChildCount(); i++)
+        {
+            View v = layout.getChildAt(i);
+            if (v instanceof TextView)
+            {
+                ((TextView) v).setTypeface(face);
+            }
+        }
+    }
+
     /**
      * View pager adapter
      */
@@ -258,6 +266,14 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
             layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
             View view = layoutInflater.inflate(layouts[position], container, false);
+
+            LinearLayout layout = (LinearLayout) findViewById(R.id.ll_welcomeSlide);
+
+            if (layout != null)
+            {
+                changeFontForAllTextViews(layout);
+            }
+
             container.addView(view);
 
             return view;
@@ -283,6 +299,5 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
             container.removeView(view);
         }
     }
-
 
 }
