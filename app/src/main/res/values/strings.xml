@@ -3,10 +3,16 @@
     <string name="facebook_app_id">701037546725166</string>
     <string name="fb_login_protocol_scheme">701037546725166</string>
 
-    <string name="login_label">find  >  flirt  >  meet</string>
-    <string name="privacy_policy_label_1">We dont post anything to Facebook. By signingin you agree to our <u><b>Tearms of services</b></u> and <u><b>Privacy policy.</b></u></string>
-    <string name="next">NEXT</string>
-    <string name="skip">PREVIOUS</string>
-    <string name="start">GOT IT</string>
+    <string name="login_label_1">find  >  flirt  >  meet</string>
+    <string name="login_label_2"> Swipe right to flirt</string>
+    <string name="login_label_3"> Lets flirt!</string>
+    <string name="login_label_4"> Chat,flirt,send gifts and</string>
+    <string name="login_label_5"> more exciting features</string>
+    <string name="login_label_6"> Find your flirtmate in real time</string>
+
+
+    <string name="privacy_policy_label_1">We dont post anything to Facebook.</string>
+    <string name="privacy_policy_label_2"> By signingin you agree to our <u><b>Tearms of services</b></u> and <u><b>Privacy policy.</b></u></string>
+
 
 </resources>
