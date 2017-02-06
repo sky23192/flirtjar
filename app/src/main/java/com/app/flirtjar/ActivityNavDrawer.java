@@ -1,8 +1,10 @@
 package com.app.flirtjar;
 
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -15,9 +17,16 @@ import android.view.MenuItem;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
 
+import fragments.FragmentChat;
+import fragments.FragmentJar;
+import fragments.FragmentMap;
+
 public class ActivityNavDrawer extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener
 {
+
+
+    FragmentManager fragmentManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -29,6 +38,8 @@ public class ActivityNavDrawer extends AppCompatActivity
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
+
+        fragmentManager = getSupportFragmentManager();
 
         setupBottomBar();
 
@@ -58,6 +69,11 @@ public class ActivityNavDrawer extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        fragmentManager.beginTransaction()
+                .replace(R.id.fl_fragmentContainer, FragmentJar.newInstance())
+                .commitAllowingStateLoss();
+
     }
 
     private void setupBottomBar()
@@ -65,14 +81,61 @@ public class ActivityNavDrawer extends AppCompatActivity
         AHBottomNavigation bottomNavigation = (AHBottomNavigation) findViewById(R.id.bottom_navigation);
 
         // Create items
-        AHBottomNavigationItem item1 = new AHBottomNavigationItem("", R.mipmap.ic_launcher);
-        AHBottomNavigationItem item2 = new AHBottomNavigationItem("", R.mipmap.ic_launcher);
-        AHBottomNavigationItem item3 = new AHBottomNavigationItem("", R.mipmap.ic_launcher);
+        AHBottomNavigationItem item1 = new AHBottomNavigationItem("nearby", R.mipmap.ic_nearby_inactive);
+        AHBottomNavigationItem item2 = new AHBottomNavigationItem("jar", R.mipmap.ic_jar_active);
+        AHBottomNavigationItem item3 = new AHBottomNavigationItem("chat", R.mipmap.ic_chat_inactive);
 
         // Add items
         bottomNavigation.addItem(item1);
         bottomNavigation.addItem(item2);
         bottomNavigation.addItem(item3);
+
+        bottomNavigation.setTitleState(AHBottomNavigation.TitleState.ALWAYS_SHOW);
+
+        bottomNavigation.setCurrentItem(1);
+
+        bottomNavigation.setAccentColor(Color.parseColor("#F63D2B"));
+        bottomNavigation.setInactiveColor(Color.parseColor("#747474"));
+
+        bottomNavigation.setOnTabSelectedListener(new AHBottomNavigation.OnTabSelectedListener()
+        {
+            @Override
+            public boolean onTabSelected(int position, boolean wasSelected)
+            {
+                switch (position)
+                {
+                    case 0:
+                        fragmentManager.beginTransaction()
+                                .replace(R.id.fl_fragmentContainer, new FragmentMap())
+                                .commitAllowingStateLoss();
+                        return true;
+
+                    case 1:
+                        fragmentManager.beginTransaction()
+                                .replace(R.id.fl_fragmentContainer, FragmentJar.newInstance())
+                                .commitAllowingStateLoss();
+                        return true;
+
+                    case 2:
+                        fragmentManager.beginTransaction()
+                                .replace(R.id.fl_fragmentContainer, FragmentChat.newInstance())
+                                .commitAllowingStateLoss();
+                        return true;
+
+                    default:
+                        return true;
+                }
+            }
+        });
+        bottomNavigation.setOnNavigationPositionListener(new AHBottomNavigation.OnNavigationPositionListener()
+        {
+            @Override
+            public void onPositionChange(int y)
+            {
+                // Manage the new y position
+            }
+        });
+
     }
 
     @Override
