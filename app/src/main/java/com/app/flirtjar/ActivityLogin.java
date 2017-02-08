@@ -40,6 +40,9 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
     @BindView(R.id.btn_fbLogin)
     LoginButton btnFbLogin;
 
+    @BindView(R.id.tv_lbl)
+    TextView tv_lbl;
+
     @BindView(R.id.layout_dots)
     LinearLayout dotsLayout;
 
@@ -299,5 +302,6 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
             container.removeView(view);
         }
     }
+
 
 }

@@ -39,12 +39,6 @@
             android:name=".ActivitySplash"
             android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen">
 
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-
         </activity>
         <activity
             android:name=".ActivityLogin"
@@ -74,7 +68,11 @@
             android:label="@string/title_activity_nav_drawer"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
 
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
         </activity>
     </application>
 

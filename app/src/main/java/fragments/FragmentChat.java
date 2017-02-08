@@ -15,19 +15,16 @@ import butterknife.ButterKnife;
  * Created by rutvik on 2/5/2017 at 4:13 PM.
  */
 
-public class FragmentChat extends Fragment
-{
+public class FragmentChat extends Fragment {
 
-    public static FragmentChat newInstance()
-    {
+    public static FragmentChat newInstance() {
         return new FragmentChat();
     }
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState)
-    {
-        View view = inflater.inflate(R.layout.fragment_map, container, false);
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_chat, container, false);
 
         ButterKnife.bind(this, view);
 
