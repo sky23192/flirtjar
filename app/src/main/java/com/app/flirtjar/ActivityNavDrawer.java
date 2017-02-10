@@ -1,6 +1,8 @@
 package com.app.flirtjar;
 
+import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -13,10 +15,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
+import com.facebook.AccessToken;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import fragments.FragmentChat;
 import fragments.FragmentJar;
 import fragments.FragmentMap;
@@ -25,20 +32,33 @@ public class ActivityNavDrawer extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener
 {
 
-
     FragmentManager fragmentManager;
+
+    @BindView(R.id.tv_navLogoText)
+    TextView tvNavLogoText;
+
+    int currentPage = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nav_drawer);
+
+        ButterKnife.bind(this);
+
+        final Typeface pacifico = Typeface.createFromAsset(getAssets(), "font/Pacifico-Regular.ttf");
+
+        tvNavLogoText.setTypeface(pacifico);
+
+        getFacebookAuthToken();
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setTitle("Flirt Jar");
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setTitle("");
 
         fragmentManager = getSupportFragmentManager();
 
@@ -55,7 +75,7 @@ public class ActivityNavDrawer extends AppCompatActivity
             }
         });*/
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar,
@@ -63,18 +83,42 @@ public class ActivityNavDrawer extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        Drawable drawable = ResourcesCompat.getDrawable(getResources(),
-                R.drawable.ic_jar_active, this.getTheme());
-
-        toggle.setHomeAsUpIndicator(drawable);
-
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        toggle.setDrawerIndicatorEnabled(false);
+        Drawable drawable = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_jar_active,
+                getTheme());
+        toggle.setHomeAsUpIndicator(drawable);
+        toggle.setToolbarNavigationClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                if (drawer.isDrawerVisible(GravityCompat.START))
+                {
+                    drawer.closeDrawer(GravityCompat.START);
+                } else
+                {
+                    drawer.openDrawer(GravityCompat.START);
+                }
+            }
+        });
 
         fragmentManager.beginTransaction()
                 .replace(R.id.fl_fragmentContainer, FragmentJar.newInstance())
                 .commitAllowingStateLoss();
 
+    }
+
+    private void getFacebookAuthToken()
+    {
+        if (AccessToken.getCurrentAccessToken() == null)
+        {
+            Intent i = new Intent(this, ActivityLogin.class);
+            i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(i);
+        }
     }
 
     private void setupBottomBar()
@@ -106,22 +150,34 @@ public class ActivityNavDrawer extends AppCompatActivity
                 switch (position)
                 {
                     case 0:
-                        fragmentManager.beginTransaction()
-                                .replace(R.id.fl_fragmentContainer, new FragmentMap())
-                                .commitAllowingStateLoss();
+                        if (currentPage != position)
+                        {
+                            currentPage = position;
+                            fragmentManager.beginTransaction()
+                                    .replace(R.id.fl_fragmentContainer, new FragmentMap())
+                                    .commitAllowingStateLoss();
+                        }
                         return true;
 
                     case 1:
-                        fragmentManager.beginTransaction()
-                                .replace(R.id.fl_fragmentContainer, FragmentJar.newInstance())
-                                .commitAllowingStateLoss();
+                        if (currentPage != position)
+                        {
+                            currentPage = position;
+                            fragmentManager.beginTransaction()
+                                    .replace(R.id.fl_fragmentContainer, FragmentJar.newInstance())
+                                    .commitAllowingStateLoss();
+                        }
                         return true;
 
                     case 2:
-                        fragmentManager.beginTransaction()
-                                .replace(R.id.fl_fragmentContainer, FragmentChat.newInstance())
-                                .commitAllowingStateLoss();
-                        return true;
+                        if (currentPage != position)
+                        {
+                            currentPage = position;
+                            fragmentManager.beginTransaction()
+                                    .replace(R.id.fl_fragmentContainer, FragmentChat.newInstance())
+                                    .commitAllowingStateLoss();
+                            return true;
+                        }
 
                     default:
                         return true;

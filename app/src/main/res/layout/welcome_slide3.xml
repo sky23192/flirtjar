@@ -22,7 +22,8 @@
         android:gravity="center"
         android:text="Chat, flirt, send gifts and more exciting features"
         android:textColor="#79BADD"
-        android:textSize="28dp"/>
+        android:textSize="24dp"
+        android:typeface="monospace"/>
 
     <ImageView
         android:id="@+id/imageView3"

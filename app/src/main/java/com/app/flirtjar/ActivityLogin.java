@@ -40,9 +40,6 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
     @BindView(R.id.btn_fbLogin)
     LoginButton btnFbLogin;
 
-    @BindView(R.id.tv_lbl)
-    TextView tv_lbl;
-
     @BindView(R.id.layout_dots)
     LinearLayout dotsLayout;
 
@@ -212,10 +209,12 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
     @Override
     public void onSuccess(LoginResult loginResult)
     {
-        //CREATE NEW USER ON SERVER USING API
+        //CREATE NEW USER ON SERVER USIlogiNG API
         Toast.makeText(this, "LOGIN SUCCESSFUL " + loginResult.getAccessToken().getToken(),
                 Toast.LENGTH_SHORT).show();
-        startActivity(new Intent(ActivityLogin.this, ActivityHome.class));
+        Intent i = new Intent(this, ActivityNavDrawer.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(i);
 
     }
 
@@ -240,14 +239,19 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
 
     public void changeFontForAllTextViews(LinearLayout layout)
     {
-        final Typeface face = Typeface.createFromAsset(getAssets(), "font/Pacifico-Regular.ttf");
+        final Typeface pacifico = Typeface.createFromAsset(getAssets(), "font/Pacifico-Regular.ttf");
+        final Typeface montserrat = Typeface.createFromAsset(getAssets(), "font/Montserrat-Regular.ttf");
 
         for (int i = 0; i < layout.getChildCount(); i++)
         {
             View v = layout.getChildAt(i);
             if (v instanceof TextView)
             {
-                ((TextView) v).setTypeface(face);
+                ((TextView) v).setTypeface(pacifico);
+                if (v.getId() == R.id.tv_lbl32)
+                {
+                    ((TextView) v).setTypeface(montserrat);
+                }
             }
         }
     }
@@ -270,7 +274,7 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
 
             View view = layoutInflater.inflate(layouts[position], container, false);
 
-            LinearLayout layout = (LinearLayout) findViewById(R.id.ll_welcomeSlide);
+            LinearLayout layout = (LinearLayout) view.findViewById(R.id.ll_welcomeSlide);
 
             if (layout != null)
             {
