@@ -1,7 +1,6 @@
 package com.app.flirtjar;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -16,10 +15,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
-import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
 import com.facebook.AccessToken;
 
 import butterknife.BindView;
@@ -29,13 +28,31 @@ import fragments.FragmentJar;
 import fragments.FragmentMap;
 
 public class ActivityNavDrawer extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener
+        implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener
 {
 
     FragmentManager fragmentManager;
 
     @BindView(R.id.tv_navLogoText)
     TextView tvNavLogoText;
+
+    @BindView(R.id.btn_nearby)
+    ImageButton btnNearby;
+
+    @BindView(R.id.btn_jar)
+    ImageButton btnJar;
+
+    @BindView(R.id.btn_chat)
+    ImageButton btnChat;
+
+    @BindView(R.id.ll_nearby)
+    LinearLayout llNearby;
+
+    @BindView(R.id.ll_jar)
+    LinearLayout llJar;
+
+    @BindView(R.id.ll_chat)
+    LinearLayout llChat;
 
     int currentPage = 1;
 
@@ -62,7 +79,14 @@ public class ActivityNavDrawer extends AppCompatActivity
 
         fragmentManager = getSupportFragmentManager();
 
-        setupBottomBar();
+        setupBottomBar(1);
+
+        btnJar.setSelected(true);
+
+        llNearby.setOnClickListener(this);
+        llJar.setOnClickListener(this);
+        llChat.setOnClickListener(this);
+
 
         //FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         /*fab.setOnClickListener(new View.OnClickListener()
@@ -86,10 +110,23 @@ public class ActivityNavDrawer extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        navigationView.getHeaderView(0).findViewById(R.id.ib_settings)
+                .setOnClickListener(new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View view)
+                    {
+                        startActivity(new Intent(ActivityNavDrawer.this, ActivitySetting.class));
+                    }
+                });
+
         toggle.setDrawerIndicatorEnabled(false);
+
         Drawable drawable = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_jar_active,
                 getTheme());
+
         toggle.setHomeAsUpIndicator(drawable);
+
         toggle.setToolbarNavigationClickListener(new View.OnClickListener()
         {
             @Override
@@ -121,78 +158,43 @@ public class ActivityNavDrawer extends AppCompatActivity
         }
     }
 
-    private void setupBottomBar()
+    private void setupBottomBar(int position)
     {
-        AHBottomNavigation bottomNavigation = (AHBottomNavigation) findViewById(R.id.bottom_navigation);
-
-        // Create items
-        AHBottomNavigationItem item1 = new AHBottomNavigationItem("nearby", R.mipmap.ic_nearby_inactive);
-        AHBottomNavigationItem item2 = new AHBottomNavigationItem("jar", R.mipmap.ic_jar_active);
-        AHBottomNavigationItem item3 = new AHBottomNavigationItem("chat", R.mipmap.ic_chat_inactive);
-
-        // Add items
-        bottomNavigation.addItem(item1);
-        bottomNavigation.addItem(item2);
-        bottomNavigation.addItem(item3);
-
-        bottomNavigation.setTitleState(AHBottomNavigation.TitleState.ALWAYS_SHOW);
-
-        bottomNavigation.setCurrentItem(1);
-
-        bottomNavigation.setAccentColor(Color.parseColor("#F63D2B"));
-        bottomNavigation.setInactiveColor(Color.parseColor("#747474"));
-
-        bottomNavigation.setOnTabSelectedListener(new AHBottomNavigation.OnTabSelectedListener()
+        switch (position)
         {
-            @Override
-            public boolean onTabSelected(int position, boolean wasSelected)
-            {
-                switch (position)
+            case 0:
+                if (currentPage != position)
                 {
-                    case 0:
-                        if (currentPage != position)
-                        {
-                            currentPage = position;
-                            fragmentManager.beginTransaction()
-                                    .replace(R.id.fl_fragmentContainer, new FragmentMap())
-                                    .commitAllowingStateLoss();
-                        }
-                        return true;
-
-                    case 1:
-                        if (currentPage != position)
-                        {
-                            currentPage = position;
-                            fragmentManager.beginTransaction()
-                                    .replace(R.id.fl_fragmentContainer, FragmentJar.newInstance())
-                                    .commitAllowingStateLoss();
-                        }
-                        return true;
-
-                    case 2:
-                        if (currentPage != position)
-                        {
-                            currentPage = position;
-                            fragmentManager.beginTransaction()
-                                    .replace(R.id.fl_fragmentContainer, FragmentChat.newInstance())
-                                    .commitAllowingStateLoss();
-                            return true;
-                        }
-
-                    default:
-                        return true;
+                    currentPage = position;
+                    fragmentManager.beginTransaction()
+                            .replace(R.id.fl_fragmentContainer, new FragmentMap())
+                            .commitAllowingStateLoss();
                 }
-            }
-        });
-        bottomNavigation.setOnNavigationPositionListener(new AHBottomNavigation.OnNavigationPositionListener()
-        {
-            @Override
-            public void onPositionChange(int y)
-            {
-                // Manage the new y position
-            }
-        });
+                return;
 
+            case 1:
+                if (currentPage != position)
+                {
+                    currentPage = position;
+                    fragmentManager.beginTransaction()
+                            .replace(R.id.fl_fragmentContainer, FragmentJar.newInstance())
+                            .commitAllowingStateLoss();
+                }
+                return;
+
+            case 2:
+                if (currentPage != position)
+                {
+                    currentPage = position;
+                    fragmentManager.beginTransaction()
+                            .replace(R.id.fl_fragmentContainer, FragmentChat.newInstance())
+                            .commitAllowingStateLoss();
+                    return;
+                }
+
+            default:
+                return;
+        }
     }
 
     @Override
@@ -263,5 +265,34 @@ public class ActivityNavDrawer extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+
+    @Override
+    public void onClick(View view)
+    {
+        switch (view.getId())
+        {
+            case R.id.ll_nearby:
+                setupBottomBar(0);
+                btnNearby.setSelected(true);
+                btnJar.setSelected(false);
+                btnChat.setSelected(false);
+                break;
+
+            case R.id.ll_jar:
+                setupBottomBar(1);
+                btnNearby.setSelected(false);
+                btnJar.setSelected(true);
+                btnChat.setSelected(false);
+                break;
+
+            case R.id.ll_chat:
+                setupBottomBar(2);
+                btnNearby.setSelected(false);
+                btnJar.setSelected(false);
+                btnChat.setSelected(true);
+                break;
+        }
     }
 }

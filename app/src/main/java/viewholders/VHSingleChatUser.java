@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 
 import com.app.flirtjar.R;
 
+import dialogs.PurchaseDialog;
+
 /**
  * Created by rutvik on 2/8/2017 at 11:01 PM.
  */
@@ -16,10 +18,21 @@ public class VHSingleChatUser extends RecyclerView.ViewHolder
 {
     final Context context;
 
-    public VHSingleChatUser(Context context, View itemView)
+    public VHSingleChatUser(final Context context, View itemView)
     {
         super(itemView);
         this.context = context;
+
+        itemView.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                PurchaseDialog pd = new PurchaseDialog(context);
+                pd.show();
+            }
+        });
+
     }
 
     public static VHSingleChatUser create(final Context context, final ViewGroup parent)
