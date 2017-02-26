@@ -127,8 +127,12 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
         new TedPermission(this)
                 .setPermissionListener(permissionlistener)
                 .setPermissions(Manifest.permission.CALL_PHONE,
-                        Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE,
-                        Manifest.permission.ACCESS_WIFI_STATE, Manifest.permission.NFC)
+                        Manifest.permission.ACCESS_NETWORK_STATE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.ACCESS_WIFI_STATE)
                 .check();
 
 
@@ -212,6 +216,7 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
         //CREATE NEW USER ON SERVER USIlogiNG API
         Toast.makeText(this, "LOGIN SUCCESSFUL " + loginResult.getAccessToken().getToken(),
                 Toast.LENGTH_SHORT).show();
+
         Intent i = new Intent(this, ActivityNavDrawer.class);
         i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(i);
@@ -239,8 +244,8 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
 
     public void changeFontForAllTextViews(LinearLayout layout)
     {
-        final Typeface pacifico = Typeface.createFromAsset(getAssets(), "font/Pacifico-Regular.ttf");
-        final Typeface montserrat = Typeface.createFromAsset(getAssets(), "font/Montserrat-Regular.ttf");
+        final Typeface pacifico = Typeface.createFromAsset(getAssets(), "fonts/Pacifico-Regular.ttf");
+        final Typeface montserrat = Typeface.createFromAsset(getAssets(), "fonts/Montserrat-Regular.ttf");
 
         for (int i = 0; i < layout.getChildCount(); i++)
         {

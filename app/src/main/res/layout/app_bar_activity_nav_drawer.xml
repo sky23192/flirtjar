@@ -6,7 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="com.app.flirtjar.ActivityNavDrawer">
+    tools:context="com.app.flirtjar.ActivityNavDrawer"
+    tools:ignore="MissingPrefix">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -19,7 +20,17 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="80dp"
+            android:contentInsetEnd="0dp"
+            android:contentInsetLeft="0dp"
+            android:contentInsetRight="0dp"
+            android:contentInsetStart="0dp"
+
             android:fitsSystemWindows="true"
+            app:contentInsetEnd="0dp"
+            app:contentInsetLeft="0dp"
+            app:contentInsetRight="0dp"
+
+            app:contentInsetStart="0dp"
             app:popupTheme="@style/AppTheme.PopupOverlay">
 
             <TextView
@@ -28,7 +39,8 @@
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:text="Flirtjar"
-                android:textSize="22sp"
+                android:textColor="#ffffff"
+                android:textSize="26sp"
                 android:typeface="monospace"/>
 
         </android.support.v7.widget.Toolbar>
@@ -72,10 +84,11 @@
                     android:src="@drawable/btn_nearby"/>
 
                 <TextView
+                    fontPath="fonts/Righteous-Regular.ttf"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:clickable="false"
-                    android:text="chat"
+                    android:text="nearby"
                     android:textSize="12sp"/>
 
             </LinearLayout>
@@ -102,10 +115,11 @@
                     android:src="@drawable/btn_jar"/>
 
                 <TextView
+                    fontPath="fonts/Righteous-Regular.ttf"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:clickable="false"
-                    android:text="chat"
+                    android:text="jar"
                     android:textSize="12sp"/>
 
             </LinearLayout>
@@ -133,6 +147,7 @@
                     android:src="@drawable/btn_chat"/>
 
                 <TextView
+                    fontPath="fonts/Righteous-Regular.ttf"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:clickable="false"

@@ -1,18 +1,23 @@
 package fragments;
 
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.app.flirtjar.R;
+import com.github.clans.fab.FloatingActionButton;
+import com.github.clans.fab.FloatingActionMenu;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 /**
@@ -23,7 +28,12 @@ public class FragmentMap extends Fragment implements OnMapReadyCallback
 {
 
     SyncedMapFragment syncedMapFragment;
-
+    @BindView(R.id.tv_meetUpTo)
+    TextView tvMeetUpTo;
+    @BindView(R.id.fam_meetUpTo)
+    FloatingActionMenu famMeetUpTo;
+    @BindView(R.id.fab_detour)
+    FloatingActionButton fabDetour;
     private GoogleMap mMap;
 
     @Nullable
@@ -37,6 +47,25 @@ public class FragmentMap extends Fragment implements OnMapReadyCallback
                 .findFragmentById(R.id.frag_map);
 
         syncedMapFragment.getMapAsync(this);
+
+        final Typeface pacifico = Typeface.createFromAsset(getActivity().getAssets(), "fonts/Pacifico-Regular.ttf");
+
+        tvMeetUpTo.setTypeface(pacifico);
+
+        famMeetUpTo.setOnMenuToggleListener(new FloatingActionMenu.OnMenuToggleListener()
+        {
+            @Override
+            public void onMenuToggle(boolean opened)
+            {
+                if (opened)
+                {
+                    tvMeetUpTo.setVisibility(View.VISIBLE);
+                } else
+                {
+                    tvMeetUpTo.setVisibility(View.GONE);
+                }
+            }
+        });
 
         return view;
     }

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.app.flirtjar.R;
 import com.bumptech.glide.Glide;
@@ -27,35 +28,36 @@ import com.mindorks.placeholderview.annotations.swipe.SwipeOutState;
 public class FlirtjarCard
 {
 
-    @View(R.id.profileImageView)
-    private ImageView profileImageView;
+    @View(R.id.iv_cardUserImage)
+    private ImageView ivCardUserImage;
 
-    @View(R.id.nameAgeTxt)
-    private TextView nameAgeTxt;
+    @View(R.id.tv_cardUserNameAndAge)
+    private TextView tvCardUserNameAndAge;
 
-    @View(R.id.locationNameTxt)
-    private TextView locationNameTxt;
+    @View(R.id.tv_cardUserFrom)
+    private TextView tvCardUserFrom;
 
-    private Profile mProfile;
+    private Profile singleCardUser;
     private Context mContext;
     private SwipePlaceHolderView mSwipeView;
 
-    public FlirtjarCard(Context context, Profile profile, SwipePlaceHolderView swipeView)
+    public FlirtjarCard(Context context, Profile singleCardUser, SwipePlaceHolderView swipeView)
     {
         mContext = context;
-        mProfile = profile;
+        this.singleCardUser = singleCardUser;
         mSwipeView = swipeView;
     }
 
     @Resolve
-    private void onResolved()
+    public void onResolved()
     {
-        Glide.with(mContext).load(mProfile.getImageUrl()).into(profileImageView);
-        nameAgeTxt.setText(mProfile.getName() + ", " + mProfile.getAge());
-        locationNameTxt.setText(mProfile.getLocation());
+        Toast.makeText(mContext, "onResolved()", Toast.LENGTH_SHORT).show();
+        Glide.with(mContext).load(singleCardUser.getImageUrl()).into(ivCardUserImage);
+        tvCardUserNameAndAge.setText(singleCardUser.getName() + ", " + singleCardUser.getAge());
+        tvCardUserFrom.setText(singleCardUser.getLocation());
     }
 
-    @Click(R.id.profileImageView)
+    @Click(R.id.iv_cardUserImage)
     private void onClick()
     {
         Log.d("EVENT", "profileImageView click");

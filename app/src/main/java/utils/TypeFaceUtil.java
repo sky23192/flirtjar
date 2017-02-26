@@ -16,7 +16,7 @@ public class TypeFaceUtil
                                       String staticTypefaceFieldName, String fontAssetName)
     {
         final Typeface regular = Typeface.createFromAsset(context.getAssets(),
-                "font/" + fontAssetName);
+                "fonts/" + fontAssetName);
         replaceFont(staticTypefaceFieldName, regular);
     }
 

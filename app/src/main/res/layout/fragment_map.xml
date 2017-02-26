@@ -15,7 +15,7 @@
         tools:context="fragments.FragmentMap"/>
 
     <com.github.clans.fab.FloatingActionMenu
-        android:id="@+id/menu_red"
+        android:id="@+id/fam_meetUpTo"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentBottom="true"
@@ -24,11 +24,18 @@
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         fab:menu_backgroundColor="#99000000"
+        fab:menu_colorNormal="#3697DB"
+        fab:menu_colorPressed="#2f86c4"
+        fab:menu_colorRipple="#38a2ed"
         fab:menu_fab_label="meet up to"
+        fab:menu_labels_customFont="fonts/Pacifico-Regular.ttf"
         fab:menu_labels_ellipsize="end"
-        fab:menu_labels_singleLine="true">
+        fab:menu_labels_singleLine="true"
+        fab:menu_labels_style="@style/MenuLabelsStyle">
 
         <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/fab_grabBite"
+            fontPath="fonts/Pacifico-Regular.ttf"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_grab_bite"
@@ -36,6 +43,7 @@
             fab:fab_size="mini"/>
 
         <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/fab_goFroRun"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_go_for_run"
@@ -43,6 +51,7 @@
             fab:fab_size="mini"/>
 
         <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/fab_getDrunk"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_get_drunk"
@@ -50,7 +59,7 @@
             fab:fab_size="mini"/>
 
         <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/fab1"
+            android:id="@+id/fab_catchMovie"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_go_for_movie"
@@ -58,7 +67,7 @@
             fab:fab_size="mini"/>
 
         <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/fab2"
+            android:id="@+id/fab_goOut"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_go_out"
@@ -66,7 +75,7 @@
             fab:fab_size="mini"/>
 
         <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/fab3"
+            android:id="@+id/fab_detour"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_detour"
@@ -74,5 +83,18 @@
             fab:fab_size="mini"/>
 
     </com.github.clans.fab.FloatingActionMenu>
+
+    <TextView
+        android:id="@+id/tv_meetUpTo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="50dp"
+        android:gravity="right"
+        android:text="@string/meet_up_to"
+        android:textColor="@android:color/white"
+        android:textSize="42sp"
+        android:visibility="gone"
+        tools:visibility="visible"/>
 
 </RelativeLayout>

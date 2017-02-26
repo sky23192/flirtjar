@@ -27,5 +27,6 @@
     <string name="notifications">Notifications</string>
     <string name="liked">Liked</string>
     <string name="skipped">Skipped</string>
+    <string name="meet_up_to">meet up to</string>
 
 </resources>

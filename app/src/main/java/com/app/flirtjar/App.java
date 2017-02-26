@@ -13,6 +13,7 @@ import com.facebook.appevents.AppEventsLogger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import apimodels.User;
 import utils.TypeFaceUtil;
 
 /**
@@ -21,10 +22,22 @@ import utils.TypeFaceUtil;
 
 public class App extends Application
 {
+    public static final String APP_TAG = "FTJ ";
+
+    private static App instance;
+
+    private User user;
+
+    public static App getInstance()
+    {
+        return instance;
+    }
+
     @Override
     public void onCreate()
     {
         super.onCreate();
+        instance = this;
         FacebookSdk.sdkInitialize(getApplicationContext());
         AppEventsLogger.activateApp(this);
 
@@ -52,5 +65,15 @@ public class App extends Application
 
         }
 
+    }
+
+    public User getUser()
+    {
+        return user;
+    }
+
+    public void setUser(User user)
+    {
+        this.user = user;
     }
 }

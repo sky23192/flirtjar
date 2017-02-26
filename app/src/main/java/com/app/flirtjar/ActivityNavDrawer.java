@@ -1,60 +1,90 @@
 package com.app.flirtjar;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
 import com.facebook.AccessToken;
+import com.facebook.Profile;
+import com.facebook.ProfileTracker;
 
+import java.net.HttpURLConnection;
+
+import api.API;
+import api.RetrofitCallback;
+import apimodels.CreateUser;
+import apimodels.CreatedUser;
+import apimodels.User;
+import apimodels.Views;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import fragments.FragmentChat;
 import fragments.FragmentJar;
 import fragments.FragmentMap;
+import jp.wasabeef.glide.transformations.CropCircleTransformation;
+import retrofit2.Call;
+import retrofit2.Response;
+import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
+import utils.Constants;
+import utils.Dialog;
+import utils.Logger;
+import utils.SharedPreferences;
 
 public class ActivityNavDrawer extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener
 {
 
+    private static final String TAG = App.APP_TAG + ActivityNavDrawer.class.getSimpleName();
+    private final Handler mHandler = new Handler();
     FragmentManager fragmentManager;
-
     @BindView(R.id.tv_navLogoText)
     TextView tvNavLogoText;
-
     @BindView(R.id.btn_nearby)
     ImageButton btnNearby;
-
     @BindView(R.id.btn_jar)
     ImageButton btnJar;
-
     @BindView(R.id.btn_chat)
     ImageButton btnChat;
-
     @BindView(R.id.ll_nearby)
     LinearLayout llNearby;
-
     @BindView(R.id.ll_jar)
     LinearLayout llJar;
-
     @BindView(R.id.ll_chat)
     LinearLayout llChat;
-
+    TextView tvUsername;
+    ImageView ivProfilePicture;
     int currentPage = 1;
+    ActionBarDrawerToggle toggle;
+    View navigationViewHeader;
+    TextView tvLikeCount;
+    TextView tvVisitedCount;
+    TextView tvSuperlikeCount;
+    TextView tvSkipCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -64,11 +94,15 @@ public class ActivityNavDrawer extends AppCompatActivity
 
         ButterKnife.bind(this);
 
-        final Typeface pacifico = Typeface.createFromAsset(getAssets(), "font/Pacifico-Regular.ttf");
+        CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
+                .setDefaultFontPath("fonts/Righteous-Regular.ttf")
+                .setFontAttrId(R.attr.fontPath)
+                .build()
+        );
+
+        final Typeface pacifico = Typeface.createFromAsset(getAssets(), "fonts/Pacifico-Regular.ttf");
 
         tvNavLogoText.setTypeface(pacifico);
-
-        getFacebookAuthToken();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -78,8 +112,6 @@ public class ActivityNavDrawer extends AppCompatActivity
         getSupportActionBar().setTitle("");
 
         fragmentManager = getSupportFragmentManager();
-
-        setupBottomBar(1);
 
         btnJar.setSelected(true);
 
@@ -101,7 +133,7 @@ public class ActivityNavDrawer extends AppCompatActivity
 
         final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+        toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar,
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
@@ -110,7 +142,9 @@ public class ActivityNavDrawer extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        navigationView.getHeaderView(0).findViewById(R.id.ib_settings)
+        navigationViewHeader = navigationView.getHeaderView(0);
+
+        navigationViewHeader.findViewById(R.id.ib_settings)
                 .setOnClickListener(new View.OnClickListener()
                 {
                     @Override
@@ -120,12 +154,20 @@ public class ActivityNavDrawer extends AppCompatActivity
                     }
                 });
 
+        tvLikeCount = (TextView) navigationViewHeader.findViewById(R.id.tv_likeCount);
+        tvVisitedCount = (TextView) navigationViewHeader.findViewById(R.id.tv_visitedCount);
+        tvSuperlikeCount = (TextView) navigationViewHeader.findViewById(R.id.tv_superlikeCount);
+        tvSkipCount = (TextView) navigationViewHeader.findViewById(R.id.tv_skipCount);
+
+        tvUsername = (TextView) navigationView.getHeaderView(0)
+                .findViewById(R.id.tv_username);
+
+        ivProfilePicture = (ImageView) navigationView.getHeaderView(0)
+                .findViewById(R.id.iv_profilePicture);
+
         toggle.setDrawerIndicatorEnabled(false);
 
-        Drawable drawable = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_jar_active,
-                getTheme());
-
-        toggle.setHomeAsUpIndicator(drawable);
+        toggle.setHomeAsUpIndicator(R.drawable.ic_account_circle_white_24dp);
 
         toggle.setToolbarNavigationClickListener(new View.OnClickListener()
         {
@@ -142,6 +184,8 @@ public class ActivityNavDrawer extends AppCompatActivity
             }
         });
 
+        getFacebookAuthToken();
+
         fragmentManager.beginTransaction()
                 .replace(R.id.fl_fragmentContainer, FragmentJar.newInstance())
                 .commitAllowingStateLoss();
@@ -156,6 +200,163 @@ public class ActivityNavDrawer extends AppCompatActivity
             i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(i);
         }
+        getFacebookProfileDetails();
+    }
+
+    private void getFacebookProfileDetails()
+    {
+        FacebookProfileTracker fpt = new FacebookProfileTracker();
+        fpt.startTracking();
+
+        Glide.with(this)
+                .load(Profile.getCurrentProfile().getProfilePictureUri(200, 200))
+                .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                .bitmapTransform(new CropCircleTransformation(this))
+                .into(ivProfilePicture);
+
+        Glide.with(this)
+                .load(Profile.getCurrentProfile().getProfilePictureUri(80, 80))
+                .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                .bitmapTransform(new CropCircleTransformation(this))
+                .into(new SimpleTarget<GlideDrawable>()
+                {
+                    @Override
+                    public void onResourceReady(GlideDrawable resource, GlideAnimation<? super GlideDrawable> glideAnimation)
+                    {
+                        toggle.setHomeAsUpIndicator(resource);
+                    }
+                });
+
+        tvUsername.setText(Profile.getCurrentProfile().getFirstName());
+
+
+        final String flirtjarUserToken = SharedPreferences.getFlirtjarUserToken(this);
+
+        if (flirtjarUserToken == null)
+        {
+            createNewFlirtjarUser(Profile.getCurrentProfile());
+        } else
+        {
+            setupBottomBar(1);
+            getCurrentUser(flirtjarUserToken);
+        }
+
+    }
+
+
+    private void getCurrentUser(final String flirtjarUserToken)
+    {
+        final RetrofitCallback<User> onGetUser = new RetrofitCallback<User>()
+        {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response)
+            {
+                super.onResponse(call, response);
+                if (response.isSuccessful())
+                {
+                    App.getInstance().setUser(response.body());
+                    getViews(App.getInstance().getUser().getResult().getId(),
+                            flirtjarUserToken);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t)
+            {
+                super.onFailure(call, t);
+            }
+        };
+
+        API.User.getCurrentUser(flirtjarUserToken, onGetUser);
+    }
+
+    private void getViews(int userId, String flirtjarUserToken)
+    {
+        final RetrofitCallback<Views> onGetViews = new RetrofitCallback<Views>()
+        {
+            @Override
+            public void onResponse(Call<Views> call, final Response<Views> response)
+            {
+                super.onResponse(call, response);
+                if (response.isSuccessful())
+                {
+                    mHandler.post(new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            tvLikeCount.setText(response.body().getResult().getLikes() + " >");
+                            tvVisitedCount.setText(response.body().getResult().getPk() + " >");
+                            tvSuperlikeCount.setText(response.body().getResult().getSuperlikes() + " >");
+                            tvSkipCount.setText(response.body().getResult().getSkipped() + " >");
+
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Views> call, Throwable t)
+            {
+                super.onFailure(call, t);
+            }
+        };
+
+        API.Profile.getViews(userId + "", flirtjarUserToken, onGetViews);
+    }
+
+    private void createNewFlirtjarUser(Profile profile)
+    {
+        Dialog.showLoadingDialog(this, "Please Wait...", "Creating account...", false, false, null);
+        CreateUser user = new CreateUser();
+        user.setOauthId(AccessToken.getCurrentAccessToken().getUserId());
+        user.setFirstName(profile.getFirstName());
+        user.setLastName(profile.getLastName());
+
+        final RetrofitCallback<CreatedUser> onUserCreated = new RetrofitCallback<CreatedUser>()
+        {
+            @Override
+            public void onResponse(Call<CreatedUser> call, Response<CreatedUser> response)
+            {
+                super.onResponse(call, response);
+                Dialog.hideLoadingDialog();
+
+                if (response.code() == HttpURLConnection.HTTP_CREATED || response.isSuccessful())
+                {
+                    PreferenceManager.getDefaultSharedPreferences(ActivityNavDrawer.this)
+                            .edit()
+                            .putString(Constants.FLIRTJAR_USER_TOKEN, response.body().getResult().getToken())
+                            .apply();
+                    Toast.makeText(ActivityNavDrawer.this, "User created successfully", Toast.LENGTH_SHORT).show();
+
+                    setupBottomBar(1);
+
+                } else
+                {
+                    Toast.makeText(ActivityNavDrawer.this, "Failed to create user", Toast.LENGTH_SHORT).show();
+
+                    if (response.body() != null)
+                    {
+                        /*for (String error : response.body().getErrors())
+                        {
+                            Toast.makeText(ActivityNavDrawer.this, error, Toast.LENGTH_SHORT).show();
+                        }*/
+                    }
+
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CreatedUser> call, Throwable t)
+            {
+                super.onFailure(call, t);
+                Log.i(TAG, t.getMessage());
+                Toast.makeText(ActivityNavDrawer.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                Dialog.hideLoadingDialog();
+            }
+        };
+
+        API.User.createUser(user, onUserCreated);
     }
 
     private void setupBottomBar(int position)
@@ -170,17 +371,19 @@ public class ActivityNavDrawer extends AppCompatActivity
                             .replace(R.id.fl_fragmentContainer, new FragmentMap())
                             .commitAllowingStateLoss();
                 }
-                return;
+                break;
 
             case 1:
                 if (currentPage != position)
                 {
+                    final FragmentJar fj = FragmentJar.newInstance();
                     currentPage = position;
                     fragmentManager.beginTransaction()
-                            .replace(R.id.fl_fragmentContainer, FragmentJar.newInstance())
-                            .commitAllowingStateLoss();
+                            .replace(R.id.fl_fragmentContainer, fj)
+                            .commitNow();
+
                 }
-                return;
+                break;
 
             case 2:
                 if (currentPage != position)
@@ -189,11 +392,9 @@ public class ActivityNavDrawer extends AppCompatActivity
                     fragmentManager.beginTransaction()
                             .replace(R.id.fl_fragmentContainer, FragmentChat.newInstance())
                             .commitAllowingStateLoss();
-                    return;
                 }
+                break;
 
-            default:
-                return;
         }
     }
 
@@ -295,4 +496,22 @@ public class ActivityNavDrawer extends AppCompatActivity
                 break;
         }
     }
+
+    @Override
+    protected void attachBaseContext(Context newBase)
+    {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
+    }
+
+    class FacebookProfileTracker extends ProfileTracker
+    {
+        @Override
+        protected void onCurrentProfileChanged(Profile oldProfile, Profile currentProfile)
+        {
+            Logger.log(TAG, currentProfile.getFirstName());
+            Logger.log(TAG, currentProfile.getLastName());
+            Logger.log(TAG, currentProfile.getProfilePictureUri(200, 200).toString());
+        }
+    }
+
 }
