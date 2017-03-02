@@ -135,10 +135,18 @@ public class FragmentJar extends Fragment
 
         mSwipeView.removeAllViews();
 
-        for (Profile profile : Utils.loadProfiles(getActivity()))
+        mHandler.postDelayed(new Runnable()
         {
-            mSwipeView.addView(new FlirtjarCard(mContext, profile, mSwipeView));
-        }
+            @Override
+            public void run()
+            {
+                for (Profile profile : Utils.loadProfiles(getActivity()))
+                {
+                    mSwipeView.addView(new FlirtjarCard(mContext, profile, mSwipeView));
+                }
+            }
+        }, 5000);
+
 
     }
 

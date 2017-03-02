@@ -4,12 +4,10 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.app.flirtjar.R;
 import com.bumptech.glide.Glide;
 import com.mindorks.placeholderview.SwipePlaceHolderView;
-import com.mindorks.placeholderview.annotations.Click;
 import com.mindorks.placeholderview.annotations.Layout;
 import com.mindorks.placeholderview.annotations.Resolve;
 import com.mindorks.placeholderview.annotations.View;
@@ -51,18 +49,18 @@ public class FlirtjarCard
     @Resolve
     public void onResolved()
     {
-        Toast.makeText(mContext, "onResolved()", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(mContext, "onResolved()", Toast.LENGTH_SHORT).show();
         Glide.with(mContext).load(singleCardUser.getImageUrl()).into(ivCardUserImage);
         tvCardUserNameAndAge.setText(singleCardUser.getName() + ", " + singleCardUser.getAge());
         tvCardUserFrom.setText(singleCardUser.getLocation());
     }
 
-    @Click(R.id.iv_cardUserImage)
+    /**@Click(R.id.iv_cardUserImage)
     private void onClick()
     {
         Log.d("EVENT", "profileImageView click");
         mSwipeView.addView(this);
-    }
+    }*/
 
     @SwipeOut
     private void onSwipedOut()

@@ -4,12 +4,15 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="10dp"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
     android:gravity="center"
     android:orientation="horizontal">
 
     <ImageView
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+        android:id="@+id/iv_chatUserImage"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:layout_marginRight="10dp"/>
 
     <LinearLayout
@@ -18,6 +21,7 @@
         android:orientation="vertical">
 
         <TextView
+            android:id="@+id/tv_chatUserName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="5dp"
@@ -26,6 +30,7 @@
             android:textStyle="bold"/>
 
         <TextView
+            android:id="@+id/tv_chatUserLastMessage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:drawableLeft="@drawable/ic_keyboard_backspace_black_18dp"

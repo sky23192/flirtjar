@@ -35,12 +35,12 @@ public class PurchaseDialog extends Dialog
 
         super.onCreate(savedInstanceState);
 
+        setContentView(R.layout.dialog_purchase);
+
         WindowManager.LayoutParams params = getWindow().getAttributes();
         params.width = WindowManager.LayoutParams.WRAP_CONTENT;
         params.height = WindowManager.LayoutParams.WRAP_CONTENT;
         getWindow().setAttributes(params);
-
-        setContentView(R.layout.dialog_purchase);
 
         ButterKnife.bind(this);
 
