@@ -55,12 +55,13 @@ public class FlirtjarCard
         tvCardUserFrom.setText(singleCardUser.getLocation());
     }
 
-    /**@Click(R.id.iv_cardUserImage)
-    private void onClick()
-    {
-        Log.d("EVENT", "profileImageView click");
-        mSwipeView.addView(this);
-    }*/
+    /**
+     * @Click(R.id.iv_cardUserImage) private void onClick()
+     * {
+     * Log.d("EVENT", "profileImageView click");
+     * mSwipeView.addView(this);
+     * }
+     */
 
     @SwipeOut
     private void onSwipedOut()

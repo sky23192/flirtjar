@@ -476,9 +476,16 @@ public class ActivityNavDrawer extends AppCompatActivity
         {
             case R.id.ll_nearby:
                 setupBottomBar(0);
-                btnNearby.setSelected(true);
-                btnJar.setSelected(false);
-                btnChat.setSelected(false);
+                mHandler.post(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        btnNearby.setSelected(true);
+                        btnJar.setSelected(false);
+                        btnChat.setSelected(false);
+                    }
+                });
                 break;
 
             case R.id.ll_jar:
