@@ -2,7 +2,6 @@ package com.app.flirtjar;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -11,8 +10,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,10 +26,17 @@ import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.facebook.AccessToken;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
 import com.facebook.Profile;
 import com.facebook.ProfileTracker;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import api.API;
 import api.RetrofitCallback;
@@ -41,29 +45,26 @@ import apimodels.CreatedUser;
 import apimodels.User;
 import apimodels.Views;
 import butterknife.BindView;
-import butterknife.ButterKnife;
 import fragments.FragmentChat;
 import fragments.FragmentJar;
 import fragments.FragmentMap;
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
 import retrofit2.Call;
 import retrofit2.Response;
-import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 import utils.Constants;
+import utils.DateTime;
 import utils.Dialog;
 import utils.Logger;
 import utils.SharedPreferences;
 
-public class ActivityNavDrawer extends AppCompatActivity
+public class ActivityNavDrawer extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener
 {
 
     private static final String TAG = App.APP_TAG + ActivityNavDrawer.class.getSimpleName();
     private final Handler mHandler = new Handler();
     FragmentManager fragmentManager;
-    @BindView(R.id.tv_navLogoText)
-    TextView tvNavLogoText;
     @BindView(R.id.btn_nearby)
     ImageButton btnNearby;
     @BindView(R.id.btn_jar)
@@ -90,26 +91,6 @@ public class ActivityNavDrawer extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_nav_drawer);
-
-        ButterKnife.bind(this);
-
-        CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
-                .setDefaultFontPath("fonts/Righteous-Regular.ttf")
-                .setFontAttrId(R.attr.fontPath)
-                .build()
-        );
-
-        final Typeface pacifico = Typeface.createFromAsset(getAssets(), "fonts/Pacifico-Regular.ttf");
-
-        tvNavLogoText.setTypeface(pacifico);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
-        getSupportActionBar().setTitle("");
 
         fragmentManager = getSupportFragmentManager();
 
@@ -159,11 +140,18 @@ public class ActivityNavDrawer extends AppCompatActivity
         tvSuperlikeCount = (TextView) navigationViewHeader.findViewById(R.id.tv_superlikeCount);
         tvSkipCount = (TextView) navigationViewHeader.findViewById(R.id.tv_skipCount);
 
-        tvUsername = (TextView) navigationView.getHeaderView(0)
-                .findViewById(R.id.tv_username);
+        tvUsername = (TextView) navigationViewHeader.findViewById(R.id.tv_username);
 
-        ivProfilePicture = (ImageView) navigationView.getHeaderView(0)
-                .findViewById(R.id.iv_profilePicture);
+        ivProfilePicture = (ImageView) navigationViewHeader.findViewById(R.id.iv_profilePicture);
+
+        ivProfilePicture.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                startActivity(new Intent(ActivityNavDrawer.this, ActivityProfileView.class));
+            }
+        });
 
         toggle.setDrawerIndicatorEnabled(false);
 
@@ -186,20 +174,34 @@ public class ActivityNavDrawer extends AppCompatActivity
 
         getFacebookAuthToken();
 
-        fragmentManager.beginTransaction()
-                .replace(R.id.fl_fragmentContainer, FragmentJar.newInstance())
-                .commitAllowingStateLoss();
+    }
 
+    @Override
+    protected int getLayoutResourceId()
+    {
+        return R.layout.activity_nav_drawer;
+    }
+
+    @Override
+    protected void showNoInternetView()
+    {
+        Log.i(TAG, "");
     }
 
     private void getFacebookAuthToken()
     {
-        if (AccessToken.getCurrentAccessToken() == null)
+        if (AccessToken.getCurrentAccessToken() == null || Profile.getCurrentProfile() == null)
         {
             Intent i = new Intent(this, ActivityLogin.class);
             i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(i);
+            return;
         }
+
+        fragmentManager.beginTransaction()
+                .replace(R.id.fl_fragmentContainer, FragmentJar.newInstance())
+                .commitAllowingStateLoss();
+
         getFacebookProfileDetails();
     }
 
@@ -207,6 +209,37 @@ public class ActivityNavDrawer extends AppCompatActivity
     {
         FacebookProfileTracker fpt = new FacebookProfileTracker();
         fpt.startTracking();
+
+        GraphRequest request = GraphRequest.newMeRequest(AccessToken.getCurrentAccessToken(),
+                new GraphRequest.GraphJSONObjectCallback()
+                {
+
+                    @Override
+                    public void onCompleted(JSONObject object, GraphResponse response)
+                    {
+                        Log.i("LoginActivity", response.toString());
+                        // Get facebook data from login
+                        Bundle bFacebookData = getFacebookData(object);
+                        System.out.println(bFacebookData);
+
+                        final String flirtjarUserToken = SharedPreferences
+                                .getFlirtjarUserToken(ActivityNavDrawer.this);
+
+                        if (flirtjarUserToken == null)
+                        {
+                            createNewFlirtjarUser(bFacebookData);
+                        } else
+                        {
+                            setupBottomBar(1);
+                            getCurrentUser(flirtjarUserToken);
+                        }
+
+                    }
+                });
+        Bundle parameters = new Bundle();
+        parameters.putString("fields", "id, first_name, last_name, email,gender, birthday, location"); // Parámetros que pedimos a facebook
+        request.setParameters(parameters);
+        request.executeAsync();
 
         Glide.with(this)
                 .load(Profile.getCurrentProfile().getProfilePictureUri(200, 200))
@@ -228,18 +261,6 @@ public class ActivityNavDrawer extends AppCompatActivity
                 });
 
         tvUsername.setText(Profile.getCurrentProfile().getFirstName());
-
-
-        final String flirtjarUserToken = SharedPreferences.getFlirtjarUserToken(this);
-
-        if (flirtjarUserToken == null)
-        {
-            createNewFlirtjarUser(Profile.getCurrentProfile());
-        } else
-        {
-            setupBottomBar(1);
-            getCurrentUser(flirtjarUserToken);
-        }
 
     }
 
@@ -305,13 +326,37 @@ public class ActivityNavDrawer extends AppCompatActivity
         API.Profile.getViews(userId + "", flirtjarUserToken, onGetViews);
     }
 
-    private void createNewFlirtjarUser(Profile profile)
+    private void createNewFlirtjarUser(Bundle profile)
     {
         Dialog.showLoadingDialog(this, "Please Wait...", "Creating account...", false, false, null);
         CreateUser user = new CreateUser();
         user.setOauthId(AccessToken.getCurrentAccessToken().getUserId());
-        user.setFirstName(profile.getFirstName());
-        user.setLastName(profile.getLastName());
+        user.setFirstName(profile.getString("first_name"));
+        user.setLastName(profile.getString("last_name"));
+
+        final String gender = profile.getString("gender");
+        if (gender != null)
+        {
+            if (gender.equalsIgnoreCase("male"))
+            {
+                user.setGender(Constants.Gender.MALE.getValue());
+            } else if (gender.equalsIgnoreCase("female"))
+            {
+                user.setGender(Constants.Gender.FEMALE.getValue());
+            } else
+            {
+                user.setGender(Constants.Gender.UNSPECIFIED.getValue());
+            }
+        }
+
+        if (profile.getString("birthday") != null)
+        {
+            user.setDob(DateTime.convertDate("dd/MM/yyyy", "yyyy-MM-dd", profile.getString("birthday")));
+        }
+
+        user.setEmail(profile.getString("email"));
+
+        user.setProfilePicture(profile.getString("profile_pic"));
 
         final RetrofitCallback<CreatedUser> onUserCreated = new RetrofitCallback<CreatedUser>()
         {
@@ -510,11 +555,66 @@ public class ActivityNavDrawer extends AppCompatActivity
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
     }
 
+    private Bundle getFacebookData(JSONObject object)
+    {
+
+        try
+        {
+            Bundle bundle = new Bundle();
+            String id = object.getString("id");
+
+            try
+            {
+                URL profile_pic = new URL("https://graph.facebook.com/" + id + "/picture?width=500&height=500");
+                Log.i("profile_pic", profile_pic + "");
+                bundle.putString("profile_pic", profile_pic.toString());
+
+            } catch (MalformedURLException e)
+            {
+                e.printStackTrace();
+                return null;
+            }
+
+            bundle.putString("idFacebook", id);
+            if (object.has("first_name"))
+            {
+                bundle.putString("first_name", object.getString("first_name"));
+            }
+            if (object.has("last_name"))
+            {
+                bundle.putString("last_name", object.getString("last_name"));
+            }
+            if (object.has("email"))
+            {
+                bundle.putString("email", object.getString("email"));
+            }
+            if (object.has("gender"))
+            {
+                bundle.putString("gender", object.getString("gender"));
+            }
+            if (object.has("birthday"))
+            {
+                bundle.putString("birthday", object.getString("birthday"));
+            }
+            if (object.has("location"))
+            {
+                bundle.putString("location", object.getJSONObject("location").getString("name"));
+            }
+
+            return bundle;
+        } catch (JSONException e)
+        {
+            Log.d(TAG, "Error parsing JSON");
+            return null;
+        }
+    }
+
     class FacebookProfileTracker extends ProfileTracker
     {
         @Override
         protected void onCurrentProfileChanged(Profile oldProfile, Profile currentProfile)
         {
+            Toast.makeText(ActivityNavDrawer.this, "Profile Tracker Current Profile changed", Toast.LENGTH_SHORT).show();
             Logger.log(TAG, currentProfile.getFirstName());
             Logger.log(TAG, currentProfile.getLastName());
             Logger.log(TAG, currentProfile.getProfilePictureUri(200, 200).toString());

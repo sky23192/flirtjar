@@ -9,10 +9,12 @@ import apimodels.CreatedUser;
 import apimodels.Gift;
 import apimodels.MatchedProfiles;
 import apimodels.NearByUser;
+import apimodels.NotificationDeviceDetails;
 import apimodels.OnAddPicturesResponse;
 import apimodels.OtherPictures;
 import apimodels.Picture;
 import apimodels.ReceivedGifts;
+import apimodels.SendChatMessage;
 import apimodels.SendGift;
 import apimodels.UpdateUser;
 import apimodels.User;
@@ -131,15 +133,27 @@ public interface ApiInterface
         Call<ResponseBody> markRead(@Path("id") String id,
                                     @Header(Constants.AUTHORIZATION) String token);
 
+        @POST("notification/device/")
+        Call<ResponseBody> registerNotificationDevice(@Body NotificationDeviceDetails deviceDetails,
+                                                      @Header(Constants.AUTHORIZATION) String token);
     }
 
     interface Gifts
     {
-
         @GET("gifts/")
         Call<Gift> getGifts(@Query("page") int page,
                             @Header(Constants.AUTHORIZATION) String token);
+    }
 
+    interface Chat
+    {
+        @GET("chat/")
+        Call<ResponseBody> getChatMessages(@Query("user_from") int userId,
+                                           @Header(Constants.AUTHORIZATION) String token);
+
+        @POST("chat/")
+        Call<ResponseBody> sendChatMessage(@Body SendChatMessage chatMessage,
+                                           @Header(Constants.AUTHORIZATION) String token);
     }
 
 }
