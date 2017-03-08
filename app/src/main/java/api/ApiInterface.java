@@ -133,8 +133,9 @@ public interface ApiInterface
         Call<ResponseBody> markRead(@Path("id") String id,
                                     @Header(Constants.AUTHORIZATION) String token);
 
-        @POST("notification/device/")
+        @POST("notifications/device/")
         Call<ResponseBody> registerNotificationDevice(@Body NotificationDeviceDetails deviceDetails,
+                                                      @Header(Constants.CONTENT_TYPE) String contentType,
                                                       @Header(Constants.AUTHORIZATION) String token);
     }
 

@@ -23,4 +23,9 @@ public class SharedPreferences
         }
     }
 
+    public static String getFcmInstanceId(Context context)
+    {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getString(Constants.FCM_DEVICE_TOKEN, null);
+    }
 }

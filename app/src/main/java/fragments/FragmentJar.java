@@ -3,9 +3,9 @@ package fragments;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -17,14 +17,10 @@ import android.widget.Toast;
 
 import com.app.flirtjar.App;
 import com.app.flirtjar.R;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.BooleanResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.wallet.Wallet;
 import com.mindorks.placeholderview.SwipeDecor;
 import com.mindorks.placeholderview.SwipePlaceHolderView;
 
+import api.API;
 import api.RetrofitCallback;
 import apimodels.Cards;
 import butterknife.BindView;
@@ -32,14 +28,18 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import retrofit2.Call;
 import retrofit2.Response;
-import utils.Constants;
+import util.IabHelper;
+import util.IabResult;
+import util.Inventory;
+import util.Purchase;
+import utils.BillingDetailsConstants;
 import utils.SharedPreferences;
 
 /**
  * Created by rutvik on 2/5/2017 at 4:13 PM.
  */
 
-public class FragmentJar extends Fragment implements GoogleApiClient.OnConnectionFailedListener
+public class FragmentJar extends Fragment
 {
 
     public static final String TAG = App.APP_TAG + FragmentJar.class.getSimpleName();
@@ -54,6 +54,54 @@ public class FragmentJar extends Fragment implements GoogleApiClient.OnConnectio
     ImageButton ibReturn;
     @BindView(R.id.ibtn_gift)
     ImageButton ibtnGift;
+    IabHelper mIabHelper;
+    IabHelper.OnConsumeFinishedListener onConsumeFinishedListener =
+            new IabHelper.OnConsumeFinishedListener()
+            {
+                @Override
+                public void onConsumeFinished(Purchase purchase, IabResult result)
+                {
+                    if (result.isSuccess())
+                    {
+
+                    } else
+                    {
+
+                    }
+                }
+            };
+    IabHelper.QueryInventoryFinishedListener queryInventoryFinishedListener =
+            new IabHelper.QueryInventoryFinishedListener()
+            {
+                @Override
+                public void onQueryInventoryFinished(IabResult result, Inventory inv)
+                {
+                    if (result.isFailure())
+                    {
+
+                    } else
+                    {
+                        mIabHelper.consumeAsync(inv.getPurchase(BillingDetailsConstants.ITEM_SKU),
+                                onConsumeFinishedListener);
+                    }
+                }
+            };
+    IabHelper.OnIabPurchaseFinishedListener onIabPurchaseFinishedListener =
+            new IabHelper.OnIabPurchaseFinishedListener()
+            {
+                @Override
+                public void onIabPurchaseFinished(IabResult result, Purchase purchase)
+                {
+                    if (result.isFailure())
+                    {
+                        return;
+                    } else if (purchase.getSku().equals(BillingDetailsConstants.ITEM_SKU))
+                    {
+                        consumeItem();
+
+                    }
+                }
+            };
     private SwipePlaceHolderView mSwipeView;
     private Context mContext;
     private Cards cards;
@@ -79,10 +127,10 @@ public class FragmentJar extends Fragment implements GoogleApiClient.OnConnectio
                     @Override
                     public void run()
                     {
-                        /*for (Cards.ResultBean singleCard : cards.getResult())
+                        for (Cards.ResultBean singleCard : cards.getResult())
                         {
                             mSwipeView.addView(new FlirtjarCard(getActivity(), singleCard, mSwipeView));
-                        }*/
+                        }
                     }
                 });
 
@@ -90,7 +138,6 @@ public class FragmentJar extends Fragment implements GoogleApiClient.OnConnectio
             }
         }
     };
-    private GoogleApiClient mGoogleApiClient;
     private ProgressDialog mProgressDialog;
 
     public static FragmentJar newInstance()
@@ -98,20 +145,27 @@ public class FragmentJar extends Fragment implements GoogleApiClient.OnConnectio
         return new FragmentJar();
     }
 
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
 
-        // [START basic_google_api_client]
-        mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
-                .addApi(Wallet.API, new Wallet.WalletOptions.Builder()
-                        .setEnvironment(Constants.WALLET_ENVIRONMENT)
-                        .build())
-                .enableAutoManage(getActivity(), this)
-                .build();
-        // [END basic_google_api_client]
+        mIabHelper = new IabHelper(getActivity(), BillingDetailsConstants.base64EncodedPublicKey);
+
+        mIabHelper.startSetup(new IabHelper.OnIabSetupFinishedListener()
+        {
+            @Override
+            public void onIabSetupFinished(IabResult result)
+            {
+                if (result.isSuccess())
+                {
+                    Log.i(TAG, "IN APP BILLING SETUP OK");
+                } else
+                {
+                    Log.i(TAG, "IN APP BILLING SETUP FAILED");
+                }
+            }
+        });
 
     }
 
@@ -130,8 +184,6 @@ public class FragmentJar extends Fragment implements GoogleApiClient.OnConnectio
 
         final String token = SharedPreferences.getFlirtjarUserToken(getActivity());
 
-        //API.JarModule.getCards(1, token, onGetCards);
-
         /*view.findViewById(R.id.rejectBtn).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -148,9 +200,10 @@ public class FragmentJar extends Fragment implements GoogleApiClient.OnConnectio
 
         setupSwipeView();
 
+        API.Profile.getCards(1, token, onGetCards);
+
         return view;
     }
-
 
     public void setupSwipeView()
     {
@@ -158,21 +211,14 @@ public class FragmentJar extends Fragment implements GoogleApiClient.OnConnectio
                 .setDisplayViewCount(3)
                 .setSwipeDecor(new SwipeDecor()
                         .setPaddingTop(20)
+                        .setSwipeRotationAngle(5)
                         .setRelativeScale(0.01f)
                         .setSwipeInMsgLayoutId(R.layout.flirtjar_swipe_in_msg_view)
                         .setSwipeOutMsgLayoutId(R.layout.flirtjar_swipe_out_msg_view));
 
         mSwipeView.removeAllViews();
 
-
-        for (Profile profile : Utils.loadProfiles(getActivity()))
-        {
-            mSwipeView.addView(new FlirtjarCard(mContext, profile, mSwipeView));
-        }
-
-
     }
-
 
     @OnClick(R.id.ibtn_like)
     public void like()
@@ -202,57 +248,23 @@ public class FragmentJar extends Fragment implements GoogleApiClient.OnConnectio
     @OnClick(R.id.ibtn_gift)
     public void sendGift()
     {
-        showProgressDialog();
-        Wallet.Payments.isReadyToPay(mGoogleApiClient).setResultCallback(
-                new ResultCallback<BooleanResult>()
-                {
-                    @Override
-                    public void onResult(@NonNull BooleanResult booleanResult)
-                    {
-                        hideProgressDialog();
-
-                        if (booleanResult.getStatus().isSuccess())
-                        {
-                            if (booleanResult.getValue())
-                            {
-                                // Show Android Pay buttons and hide regular checkout button
-                                // [START_EXCLUDE]
-                                Log.d(TAG, "isReadyToPay:true");
-
-                                /*findViewById(R.id.button_regular_checkout)
-                                        .setVisibility(View.GONE);*/
-                                // [END_EXCLUDE]
-                            } else
-                            {
-                                // Hide Android Pay buttons, show a message that Android Pay
-                                // cannot be used yet, and display a traditional checkout button
-                                // [START_EXCLUDE]
-                                Log.d(TAG, "isReadyToPay:false:" + booleanResult.getStatus());
-                                /*findViewById(R.id.layout_android_pay_checkout)
-                                        .setVisibility(View.GONE);
-                                findViewById(R.id.android_pay_message)
-                                        .setVisibility(View.VISIBLE);
-                                findViewById(R.id.button_regular_checkout)
-                                        .setVisibility(View.VISIBLE);*/
-                                // [END_EXCLUDE]
-                            }
-                        } else
-                        {
-                            // Error making isReadyToPay call
-                            Log.e(TAG, "isReadyToPay:" + booleanResult.getStatus());
-                        }
-                    }
-                });
-        // [END is_ready_to_pay]
+        mIabHelper.launchPurchaseFlow(getActivity(), BillingDetailsConstants.ITEM_SKU
+                , 10001, onIabPurchaseFinishedListener, "mypurchasetoken");
     }
 
     @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult)
+    public void onActivityResult(int requestCode, int resultCode, Intent data)
     {
-        Log.e(TAG, "onConnectionFailed:" + connectionResult.getErrorMessage());
-        Toast.makeText(getActivity(), "Google Play Services error", Toast.LENGTH_SHORT).show();
+        if (!mIabHelper.handleActivityResult(requestCode, resultCode, data))
+        {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
     }
 
+    private void consumeItem()
+    {
+        mIabHelper.queryInventoryAsync(queryInventoryFinishedListener);
+    }
 
     private void showProgressDialog()
     {
@@ -274,4 +286,14 @@ public class FragmentJar extends Fragment implements GoogleApiClient.OnConnectio
         }
     }
 
+    @Override
+    public void onDestroy()
+    {
+        if (mIabHelper != null)
+        {
+            mIabHelper.dispose();
+            mIabHelper = null;
+        }
+        super.onDestroy();
+    }
 }

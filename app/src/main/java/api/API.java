@@ -6,8 +6,10 @@ import apimodels.Cards;
 import apimodels.CreateUser;
 import apimodels.CreatedUser;
 import apimodels.NearByUser;
+import apimodels.NotificationDeviceDetails;
 import apimodels.UpdateUser;
 import apimodels.Views;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import utils.Constants;
 
@@ -101,6 +103,27 @@ public class API
                             unit.getValue(),
                             token);
             call.enqueue(callback);
+            return call;
+        }
+
+    }
+
+    public static class Notifications
+    {
+        private static ApiInterface.Notifications notifications =
+                ApiClient.getClient().create(ApiInterface.Notifications.class);
+
+
+        public static Call<ResponseBody> registerNotificationDevice(NotificationDeviceDetails deviceDetails,
+                                                                    String token,
+                                                                    RetrofitCallback<ResponseBody> callback)
+        {
+            Call<ResponseBody> call = notifications.registerNotificationDevice(deviceDetails,
+                    Constants.CONTENT_TYPE_JSON,
+                    token);
+
+            call.enqueue(callback);
+
             return call;
         }
 

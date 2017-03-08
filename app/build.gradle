@@ -62,7 +62,7 @@ dependencies {
     // https://mvnrepository.com/artifact/com.wefika/flowlayout
     compile group: 'com.wefika', name: 'flowlayout', version: '0.4.1'
 
-    compile 'com.google.android.gms:play-services-wallet:10.2.0'
+    compile 'com.google.firebase:firebase-messaging:10.2.0'
 
 }
 

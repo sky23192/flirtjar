@@ -17,6 +17,8 @@ import com.mindorks.placeholderview.annotations.swipe.SwipeInState;
 import com.mindorks.placeholderview.annotations.swipe.SwipeOut;
 import com.mindorks.placeholderview.annotations.swipe.SwipeOutState;
 
+import apimodels.Cards;
+
 /**
  * Created by Admin on 2/7/2017.
  */
@@ -35,11 +37,11 @@ public class FlirtjarCard
     @View(R.id.tv_cardUserFrom)
     private TextView tvCardUserFrom;
 
-    private Profile singleCardUser;
+    private Cards.ResultBean singleCardUser;
     private Context mContext;
     private SwipePlaceHolderView mSwipeView;
 
-    public FlirtjarCard(Context context, Profile singleCardUser, SwipePlaceHolderView swipeView)
+    public FlirtjarCard(Context context, Cards.ResultBean singleCardUser, SwipePlaceHolderView swipeView)
     {
         mContext = context;
         this.singleCardUser = singleCardUser;
@@ -50,9 +52,9 @@ public class FlirtjarCard
     public void onResolved()
     {
         //Toast.makeText(mContext, "onResolved()", Toast.LENGTH_SHORT).show();
-        Glide.with(mContext).load(singleCardUser.getImageUrl()).into(ivCardUserImage);
-        tvCardUserNameAndAge.setText(singleCardUser.getName() + ", " + singleCardUser.getAge());
-        tvCardUserFrom.setText(singleCardUser.getLocation());
+        Glide.with(mContext).load(singleCardUser.getProfilePicture()).into(ivCardUserImage);
+        tvCardUserNameAndAge.setText(singleCardUser.getFirstName() + ", " + singleCardUser.getDob());
+        tvCardUserFrom.setText(singleCardUser.getCountry());
     }
 
     /**

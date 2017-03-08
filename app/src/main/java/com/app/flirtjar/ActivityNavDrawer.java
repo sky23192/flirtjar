@@ -372,6 +372,11 @@ public class ActivityNavDrawer extends BaseActivity
                             .edit()
                             .putString(Constants.FLIRTJAR_USER_TOKEN, response.body().getResult().getToken())
                             .apply();
+
+                    final String flirtjarUserToken = response.body().getResult().getToken();
+
+                    getCurrentUser(flirtjarUserToken);
+
                     Toast.makeText(ActivityNavDrawer.this, "User created successfully", Toast.LENGTH_SHORT).show();
 
                     setupBottomBar(1);

@@ -1,7 +1,5 @@
 package utils;
 
-import com.google.android.gms.wallet.WalletConstants;
-
 /**
  * Created by rutvik on 2/21/2017 at 11:21 PM.
  */
@@ -18,10 +16,9 @@ public class Constants
 
     public static final String CONTENT_TYPE_JSON = "application/json";
 
-    public static final String DEVICE_TYPE = "android";
-    public static final int WALLET_ENVIRONMENT = WalletConstants.ENVIRONMENT_TEST;
-    public static final String MERCHANT_NAME = "Harikesh Patel";
-    public static final String CURRENCY_CODE_USD = "USD";
+    public static final String FCM_DEVICE_TOKEN = "FCM_DEVICE_TOKEN";
+
+    public static final String DEVICE_TYPE_ANDROID = "android";
 
     public static enum Gender
     {
