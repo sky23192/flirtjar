@@ -3,6 +3,8 @@ package utils;
 import android.content.Context;
 import android.preference.PreferenceManager;
 
+import api.ApiInterface;
+
 /**
  * Created by rutvik on 2/22/2017 at 9:16 AM.
  */
@@ -27,5 +29,30 @@ public class SharedPreferences
     {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getString(Constants.FCM_DEVICE_TOKEN, null);
+    }
+
+
+    public static class Settings
+    {
+        public static int getDistanceSettings(Context context)
+        {
+            return PreferenceManager.getDefaultSharedPreferences(context)
+                    .getInt(Constants.Settings.DISTANCE, 100);
+        }
+
+
+        public static ApiInterface.Location.LocationUnit getLocationUnit(Context context)
+        {
+            final int locationUnit =
+                    PreferenceManager.getDefaultSharedPreferences(context)
+                            .getInt(Constants.Settings.LOCATION_UNIT, 0);
+            if (locationUnit == 0)
+            {
+                return ApiInterface.Location.LocationUnit.kilometer;
+            } else
+            {
+                return ApiInterface.Location.LocationUnit.meter;
+            }
+        }
     }
 }

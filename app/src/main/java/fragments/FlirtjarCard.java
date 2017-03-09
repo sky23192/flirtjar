@@ -53,7 +53,7 @@ public class FlirtjarCard
     {
         //Toast.makeText(mContext, "onResolved()", Toast.LENGTH_SHORT).show();
         Glide.with(mContext).load(singleCardUser.getProfilePicture()).into(ivCardUserImage);
-        tvCardUserNameAndAge.setText(singleCardUser.getFirstName() + ", " + singleCardUser.getDob());
+        tvCardUserNameAndAge.setText(singleCardUser.getFirstName() + ", " + singleCardUser.getAge());
         tvCardUserFrom.setText(singleCardUser.getCountry());
     }
 

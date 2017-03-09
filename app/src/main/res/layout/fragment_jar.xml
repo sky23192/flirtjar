@@ -3,7 +3,14 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#FFFCFF"
     android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/iv_loadingGif"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="center"/>
 
     <com.mindorks.placeholderview.SwipePlaceHolderView
         android:id="@+id/swipeview"

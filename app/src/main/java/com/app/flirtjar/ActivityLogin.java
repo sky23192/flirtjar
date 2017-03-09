@@ -154,17 +154,6 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
         viewPager.setAdapter(myViewPagerAdapter);
         viewPager.addOnPageChangeListener(viewPagerPageChangeListener);
 
-
-        btnFbLogin.setOnClickListener(new View.OnClickListener()
-        {
-
-            @Override
-            public void onClick(View v)
-            {
-                Toast.makeText(ActivityLogin.this, "CLICKED", Toast.LENGTH_LONG).show();
-            }
-        });
-
         callbackManager = CallbackManager.Factory.create();
 
         btnFbLogin.setReadPermissions(Arrays.asList("email",

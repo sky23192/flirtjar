@@ -2,9 +2,12 @@ package com.app.flirtjar;
 
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
@@ -30,6 +33,8 @@ import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.Profile;
 import com.facebook.ProfileTracker;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,11 +42,14 @@ import org.json.JSONObject;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import api.API;
 import api.RetrofitCallback;
 import apimodels.CreateUser;
 import apimodels.CreatedUser;
+import apimodels.UpdateUser;
 import apimodels.User;
 import apimodels.Views;
 import butterknife.BindView;
@@ -55,11 +63,13 @@ import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 import utils.Constants;
 import utils.DateTime;
 import utils.Dialog;
+import utils.FusedLocation;
 import utils.Logger;
 import utils.SharedPreferences;
 
 public class ActivityNavDrawer extends BaseActivity
-        implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener
+        implements NavigationView.OnNavigationItemSelectedListener,
+        View.OnClickListener, GoogleApiClient.OnConnectionFailedListener
 {
 
     private static final String TAG = App.APP_TAG + ActivityNavDrawer.class.getSimpleName();
@@ -80,12 +90,22 @@ public class ActivityNavDrawer extends BaseActivity
     TextView tvUsername;
     ImageView ivProfilePicture;
     int currentPage = 1;
-    ActionBarDrawerToggle toggle;
-    View navigationViewHeader;
+
+    @BindView(R.id.drawer_layout)
+    DrawerLayout drawer;
+
+    ActionBarDrawerToggle toggleLeft;
+    View navigationViewHeaderLeft;
+
+    ActionBarDrawerToggle toggleRight;
+    View navigationViewHeaderRight;
+
     TextView tvLikeCount;
     TextView tvVisitedCount;
     TextView tvSuperlikeCount;
     TextView tvSkipCount;
+
+    FusedLocation fusedLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -112,20 +132,32 @@ public class ActivityNavDrawer extends BaseActivity
             }
         });*/
 
-        final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        setupNavigationDrawer();
 
-        toggle = new ActionBarDrawerToggle(
+        getFacebookAuthToken();
+
+    }
+
+    private void setupNavigationDrawer()
+    {
+        toggleRight = new ActionBarDrawerToggle(
                 this, drawer, toolbar,
                 R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
+        drawer.setDrawerListener(toggleRight);
+        toggleRight.syncState();
+
+        toggleLeft = new ActionBarDrawerToggle(
+                this, drawer, toolbar,
+                R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.setDrawerListener(toggleLeft);
+        toggleLeft.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        navigationViewHeader = navigationView.getHeaderView(0);
+        navigationViewHeaderLeft = navigationView.getHeaderView(0);
 
-        navigationViewHeader.findViewById(R.id.ib_settings)
+        navigationViewHeaderLeft.findViewById(R.id.ib_settings)
                 .setOnClickListener(new View.OnClickListener()
                 {
                     @Override
@@ -135,14 +167,13 @@ public class ActivityNavDrawer extends BaseActivity
                     }
                 });
 
-        tvLikeCount = (TextView) navigationViewHeader.findViewById(R.id.tv_likeCount);
-        tvVisitedCount = (TextView) navigationViewHeader.findViewById(R.id.tv_visitedCount);
-        tvSuperlikeCount = (TextView) navigationViewHeader.findViewById(R.id.tv_superlikeCount);
-        tvSkipCount = (TextView) navigationViewHeader.findViewById(R.id.tv_skipCount);
+        tvLikeCount = (TextView) navigationViewHeaderLeft.findViewById(R.id.tv_likeCount);
+        tvVisitedCount = (TextView) navigationViewHeaderLeft.findViewById(R.id.tv_visitedCount);
+        tvSuperlikeCount = (TextView) navigationViewHeaderLeft.findViewById(R.id.tv_superlikeCount);
+        tvSkipCount = (TextView) navigationViewHeaderLeft.findViewById(R.id.tv_skipCount);
+        tvUsername = (TextView) navigationViewHeaderLeft.findViewById(R.id.tv_username);
 
-        tvUsername = (TextView) navigationViewHeader.findViewById(R.id.tv_username);
-
-        ivProfilePicture = (ImageView) navigationViewHeader.findViewById(R.id.iv_profilePicture);
+        ivProfilePicture = (ImageView) navigationViewHeaderLeft.findViewById(R.id.iv_profilePicture);
 
         ivProfilePicture.setOnClickListener(new View.OnClickListener()
         {
@@ -153,11 +184,11 @@ public class ActivityNavDrawer extends BaseActivity
             }
         });
 
-        toggle.setDrawerIndicatorEnabled(false);
+        toggleLeft.setDrawerIndicatorEnabled(false);
 
-        toggle.setHomeAsUpIndicator(R.drawable.ic_account_circle_white_24dp);
+        toggleLeft.setHomeAsUpIndicator(R.drawable.ic_account_circle_white_24dp);
 
-        toggle.setToolbarNavigationClickListener(new View.OnClickListener()
+        toggleLeft.setToolbarNavigationClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
@@ -171,9 +202,6 @@ public class ActivityNavDrawer extends BaseActivity
                 }
             }
         });
-
-        getFacebookAuthToken();
-
     }
 
     @Override
@@ -256,7 +284,7 @@ public class ActivityNavDrawer extends BaseActivity
                     @Override
                     public void onResourceReady(GlideDrawable resource, GlideAnimation<? super GlideDrawable> glideAnimation)
                     {
-                        toggle.setHomeAsUpIndicator(resource);
+                        toggleLeft.setHomeAsUpIndicator(resource);
                     }
                 });
 
@@ -267,7 +295,7 @@ public class ActivityNavDrawer extends BaseActivity
 
     private void getCurrentUser(final String flirtjarUserToken)
     {
-        final RetrofitCallback<User> onGetUser = new RetrofitCallback<User>()
+        final RetrofitCallback<User> onGetUser = new RetrofitCallback<User>(this)
         {
             @Override
             public void onResponse(Call<User> call, Response<User> response)
@@ -293,7 +321,7 @@ public class ActivityNavDrawer extends BaseActivity
 
     private void getViews(int userId, String flirtjarUserToken)
     {
-        final RetrofitCallback<Views> onGetViews = new RetrofitCallback<Views>()
+        final RetrofitCallback<Views> onGetViews = new RetrofitCallback<Views>(this)
         {
             @Override
             public void onResponse(Call<Views> call, final Response<Views> response)
@@ -326,13 +354,49 @@ public class ActivityNavDrawer extends BaseActivity
         API.Profile.getViews(userId + "", flirtjarUserToken, onGetViews);
     }
 
-    private void createNewFlirtjarUser(Bundle profile)
+    private void createNewFlirtjarUser(final Bundle profile)
     {
         Dialog.showLoadingDialog(this, "Please Wait...", "Creating account...", false, false, null);
-        CreateUser user = new CreateUser();
+
+        //CREATE MODEL FOR NEW USER
+
+        final CreateUser.LocationBean locationDetails =
+                new CreateUser.LocationBean();
+
+        fusedLocation = new FusedLocation(this, new FusedLocation.ApiConnectionCallbacks(null)
+        {
+            @Override
+            public void onConnected(@Nullable Bundle bundle)
+            {
+                fusedLocation.startGettingLocation(new FusedLocation.GetLocation()
+                {
+                    @Override
+                    public void onLocationChanged(Location location)
+                    {
+                        final List<Double> lngLat = new ArrayList<Double>();
+                        lngLat.add(location.getLongitude());
+                        lngLat.add(location.getLatitude());
+                        locationDetails.setCoordinates(lngLat);
+                        locationDetails.setType("Point");
+                        fusedLocation.stopGettingLocation();
+
+                        createUser(profile, locationDetails);
+
+                    }
+                });
+            }
+        }, this);
+
+
+    }
+
+    public void createUser(Bundle profile, CreateUser.LocationBean locationDetails)
+    {
+        final CreateUser user = new CreateUser();
         user.setOauthId(AccessToken.getCurrentAccessToken().getUserId());
         user.setFirstName(profile.getString("first_name"));
         user.setLastName(profile.getString("last_name"));
+        user.setLocation(locationDetails);
 
         final String gender = profile.getString("gender");
         if (gender != null)
@@ -348,17 +412,17 @@ public class ActivityNavDrawer extends BaseActivity
                 user.setGender(Constants.Gender.UNSPECIFIED.getValue());
             }
         }
-
         if (profile.getString("birthday") != null)
         {
             user.setDob(DateTime.convertDate("dd/MM/yyyy", "yyyy-MM-dd", profile.getString("birthday")));
         }
-
         user.setEmail(profile.getString("email"));
-
         user.setProfilePicture(profile.getString("profile_pic"));
+        //[CREATING MODEL ENDS HERE]
 
-        final RetrofitCallback<CreatedUser> onUserCreated = new RetrofitCallback<CreatedUser>()
+
+        //CREATE USER API METHOD CALLBACK
+        final RetrofitCallback<CreatedUser> onUserCreated = new RetrofitCallback<CreatedUser>(this)
         {
             @Override
             public void onResponse(Call<CreatedUser> call, Response<CreatedUser> response)
@@ -368,6 +432,7 @@ public class ActivityNavDrawer extends BaseActivity
 
                 if (response.code() == HttpURLConnection.HTTP_CREATED || response.isSuccessful())
                 {
+
                     PreferenceManager.getDefaultSharedPreferences(ActivityNavDrawer.this)
                             .edit()
                             .putString(Constants.FLIRTJAR_USER_TOKEN, response.body().getResult().getToken())
@@ -375,23 +440,17 @@ public class ActivityNavDrawer extends BaseActivity
 
                     final String flirtjarUserToken = response.body().getResult().getToken();
 
+                    API.User.updateUserDetails(user, flirtjarUserToken,
+                            new RetrofitCallback<UpdateUser>(ActivityNavDrawer.this)
+                            {
+                            });
+
+
                     getCurrentUser(flirtjarUserToken);
 
                     Toast.makeText(ActivityNavDrawer.this, "User created successfully", Toast.LENGTH_SHORT).show();
 
                     setupBottomBar(1);
-
-                } else
-                {
-                    Toast.makeText(ActivityNavDrawer.this, "Failed to create user", Toast.LENGTH_SHORT).show();
-
-                    if (response.body() != null)
-                    {
-                        /*for (String error : response.body().getErrors())
-                        {
-                            Toast.makeText(ActivityNavDrawer.this, error, Toast.LENGTH_SHORT).show();
-                        }*/
-                    }
 
                 }
             }
@@ -406,6 +465,7 @@ public class ActivityNavDrawer extends BaseActivity
             }
         };
 
+        //CALL API METHOD
         API.User.createUser(user, onUserCreated);
     }
 
@@ -477,12 +537,16 @@ public class ActivityNavDrawer extends BaseActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings)
+        if (id == R.id.action_notifications)
         {
-            return true;
+            if (drawer.isDrawerVisible(GravityCompat.END))
+            {
+                drawer.closeDrawer(GravityCompat.END);
+            } else
+            {
+                drawer.openDrawer(GravityCompat.END);
+            }
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -612,6 +676,12 @@ public class ActivityNavDrawer extends BaseActivity
             Log.d(TAG, "Error parsing JSON");
             return null;
         }
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult)
+    {
+
     }
 
     class FacebookProfileTracker extends ProfileTracker

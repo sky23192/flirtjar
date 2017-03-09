@@ -2,6 +2,8 @@ package apimodels;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
+
 /**
  * Created by rutvik on 1/22/2017 at 11:52 PM.
  */
@@ -42,6 +44,24 @@ public class CreatedUser
 
     public static class ErrorsBean
     {
+
+        /**
+         * errors : ["detail : Your location is undefined."]
+         * result : {}
+         */
+
+        @SerializedName("errors")
+        private java.util.List<String> errors;
+
+        public List<String> getErrors()
+        {
+            return errors;
+        }
+
+        public void setErrors(List<String> errors)
+        {
+            this.errors = errors;
+        }
     }
 
     public static class ResultBean

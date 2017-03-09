@@ -37,4 +37,9 @@ public class Constants
         }
     }
 
+    public class Settings
+    {
+        public static final String DISTANCE = "DISTANCE";
+        public static final String LOCATION_UNIT = "LOCATION_UNIT";
+    }
 }

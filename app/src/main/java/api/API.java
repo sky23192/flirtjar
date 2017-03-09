@@ -1,7 +1,5 @@
 package api;
 
-import java.util.List;
-
 import apimodels.Cards;
 import apimodels.CreateUser;
 import apimodels.CreatedUser;
@@ -33,7 +31,7 @@ public class API
             return call;
         }
 
-        public static Call<UpdateUser> updateUserDetails(final UpdateUser userInfo,
+        public static Call<UpdateUser> updateUserDetails(final CreateUser userInfo,
                                                          final String token,
                                                          final RetrofitCallback<UpdateUser> callback)
         {
@@ -93,12 +91,12 @@ public class API
         private static ApiInterface.Location location =
                 ApiClient.getClient().create(ApiInterface.Location.class);
 
-        public static Call<List<NearByUser>> getNearByUsers(int distance,
-                                                            ApiInterface.Location.LocationUnit unit,
-                                                            String token,
-                                                            RetrofitCallback<List<NearByUser>> callback)
+        public static Call<NearByUser> getNearByUsers(int distance,
+                                                      ApiInterface.Location.LocationUnit unit,
+                                                      String token,
+                                                      RetrofitCallback<NearByUser> callback)
         {
-            Call<List<NearByUser>> call = location
+            Call<NearByUser> call = location
                     .getNearByUsers(distance,
                             unit.getValue(),
                             token);

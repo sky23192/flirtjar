@@ -13,10 +13,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.app.flirtjar.App;
 import com.app.flirtjar.R;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
 import com.mindorks.placeholderview.SwipeDecor;
 import com.mindorks.placeholderview.SwipePlaceHolderView;
 
@@ -54,6 +57,10 @@ public class FragmentJar extends Fragment
     ImageButton ibReturn;
     @BindView(R.id.ibtn_gift)
     ImageButton ibtnGift;
+
+    @BindView(R.id.iv_loadingGif)
+    ImageView ivLoadingGif;
+
     IabHelper mIabHelper;
     IabHelper.OnConsumeFinishedListener onConsumeFinishedListener =
             new IabHelper.OnConsumeFinishedListener()
@@ -102,42 +109,10 @@ public class FragmentJar extends Fragment
                     }
                 }
             };
+    Call<Cards> call;
     private SwipePlaceHolderView mSwipeView;
     private Context mContext;
     private Cards cards;
-    final RetrofitCallback<Cards> onGetCards = new RetrofitCallback<Cards>()
-    {
-
-        @Override
-        public void onResponse(Call<Cards> call, final Response<Cards> response)
-        {
-            super.onResponse(call, response);
-            if (response.isSuccessful())
-            {
-                if (cards == null)
-                {
-                    cards = response.body();
-                } else
-                {
-                    cards.getResult().addAll(response.body().getResult());
-                }
-
-                mHandler.post(new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        for (Cards.ResultBean singleCard : cards.getResult())
-                        {
-                            mSwipeView.addView(new FlirtjarCard(getActivity(), singleCard, mSwipeView));
-                        }
-                    }
-                });
-
-
-            }
-        }
-    };
     private ProgressDialog mProgressDialog;
 
     public static FragmentJar newInstance()
@@ -181,8 +156,8 @@ public class FragmentJar extends Fragment
         mSwipeView = (SwipePlaceHolderView) view.findViewById(R.id.swipeview);
         mContext = getContext();
 
-
-        final String token = SharedPreferences.getFlirtjarUserToken(getActivity());
+        GlideDrawableImageViewTarget imageViewTarget = new GlideDrawableImageViewTarget(ivLoadingGif);
+        Glide.with(this).load(R.raw.loading_cards).into(imageViewTarget);
 
         /*view.findViewById(R.id.rejectBtn).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -200,24 +175,69 @@ public class FragmentJar extends Fragment
 
         setupSwipeView();
 
-        API.Profile.getCards(1, token, onGetCards);
-
         return view;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState)
+    {
+        super.onActivityCreated(savedInstanceState);
+
+        final String token = SharedPreferences.getFlirtjarUserToken(getActivity());
+
+        final RetrofitCallback<Cards> onGetCards = new RetrofitCallback<Cards>(getActivity())
+        {
+
+            @Override
+            public void onResponse(Call<Cards> call, final Response<Cards> response)
+            {
+                super.onResponse(call, response);
+                if (response.isSuccessful())
+                {
+                    if (response.body().getResult() != null)
+                    {
+                        if (response.body().getResult().size() > 0)
+                        {
+                            if (cards == null)
+                            {
+                                cards = response.body();
+                            } else
+                            {
+                                cards.getResult().addAll(response.body().getResult());
+                            }
+
+                            mHandler.post(new Runnable()
+                            {
+                                @Override
+                                public void run()
+                                {
+                                    for (Cards.ResultBean singleCard : cards.getResult())
+                                    {
+                                        mSwipeView.addView(new FlirtjarCard(getActivity(), singleCard, mSwipeView));
+                                    }
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+        };
+
+        call = API.Profile.getCards(1, token, onGetCards);
+
     }
 
     public void setupSwipeView()
     {
         mSwipeView.getBuilder()
                 .setDisplayViewCount(3)
+                .setIsUndoEnabled(true)
                 .setSwipeDecor(new SwipeDecor()
                         .setPaddingTop(20)
                         .setSwipeRotationAngle(5)
                         .setRelativeScale(0.01f)
                         .setSwipeInMsgLayoutId(R.layout.flirtjar_swipe_in_msg_view)
                         .setSwipeOutMsgLayoutId(R.layout.flirtjar_swipe_out_msg_view));
-
-        mSwipeView.removeAllViews();
-
     }
 
     @OnClick(R.id.ibtn_like)
@@ -293,6 +313,10 @@ public class FragmentJar extends Fragment
         {
             mIabHelper.dispose();
             mIabHelper = null;
+        }
+        if (call != null)
+        {
+            call.cancel();
         }
         super.onDestroy();
     }

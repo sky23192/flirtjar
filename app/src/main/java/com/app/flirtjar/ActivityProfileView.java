@@ -62,7 +62,7 @@ public class ActivityProfileView extends BaseActivity implements ImageListener
     private void getProfileDetails(final String token)
     {
 
-        call = API.User.getCurrentUser(token, new OnGetUserDetails());
+        call = API.User.getCurrentUser(token, new OnGetUserDetails(this));
 
     }
 
@@ -98,8 +98,6 @@ public class ActivityProfileView extends BaseActivity implements ImageListener
         carouselView.setPageCount(2);
 
         final User.ResultBean result = user.getResult();
-
-        Toast.makeText(this, result.getFirstName(), Toast.LENGTH_SHORT).show();
 
         tvUserName.setText(result.getFirstName() + " " + result.getLastName());
 
@@ -149,6 +147,11 @@ public class ActivityProfileView extends BaseActivity implements ImageListener
 
     class OnGetUserDetails extends RetrofitCallback<User>
     {
+        public OnGetUserDetails(Context context)
+        {
+            super(context);
+        }
+
         @Override
         public void onResponse(Call<User> call, final Response<User> response)
         {

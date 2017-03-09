@@ -90,7 +90,7 @@ public class App extends Application
             deviceDetails.setRegistrationId(instanceId);
 
             API.Notifications.registerNotificationDevice(deviceDetails,
-                    token, new RetrofitCallback<ResponseBody>()
+                    token, new RetrofitCallback<ResponseBody>(this)
                     {
                         @Override
                         public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response)

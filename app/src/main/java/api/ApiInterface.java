@@ -47,7 +47,7 @@ public interface ApiInterface
                                      @Header(Constants.CONTENT_TYPE) String contentType);
 
         @PUT("users/me/")
-        Call<UpdateUser> updateUserDetails(@Body UpdateUser user,
+        Call<UpdateUser> updateUserDetails(@Body CreateUser user,
                                            @Header(Constants.CONTENT_TYPE) String contentType,
                                            @Header(Constants.AUTHORIZATION) String token);
 
@@ -100,9 +100,9 @@ public interface ApiInterface
     interface Location
     {
         @GET("location/nearby/{distance}/{unit}/")
-        Call<List<NearByUser>> getNearByUsers(@Path("distance") int distance,
-                                              @Path("unit") String unit,
-                                              @Header(Constants.AUTHORIZATION) String token);
+        Call<NearByUser> getNearByUsers(@Path("distance") int distance,
+                                        @Path("unit") String unit,
+                                        @Header(Constants.AUTHORIZATION) String token);
 
         enum LocationUnit
         {
