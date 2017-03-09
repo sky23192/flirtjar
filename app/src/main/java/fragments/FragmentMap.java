@@ -133,6 +133,10 @@ public class FragmentMap extends Fragment implements OnMapReadyCallback, GoogleA
 
     private void getNearByUsers()
     {
+        if (getActivity() == null)
+        {
+            return;
+        }
         if (call != null)
         {
             call.cancel();
@@ -193,6 +197,10 @@ public class FragmentMap extends Fragment implements OnMapReadyCallback, GoogleA
     // Convert a view to bitmap
     public Bitmap createDrawableFromView(Context context, Bitmap bmp, NearByUser.ResultBean nearByUser)
     {
+        if (context == null)
+        {
+            return null;
+        }
         final View view = ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.custom_marker, null);
         final ImageView ivPushPinImage = (ImageView) view.findViewById(R.id.iv_pushPinImage);
         ivPushPinImage.setImageBitmap(bmp);

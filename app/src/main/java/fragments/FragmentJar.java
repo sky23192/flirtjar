@@ -183,8 +183,22 @@ public class FragmentJar extends Fragment
     {
         super.onActivityCreated(savedInstanceState);
 
-        final String token = SharedPreferences.getFlirtjarUserToken(getActivity());
+        getFlirtCards();
 
+    }
+
+    public void getFlirtCards()
+    {
+
+        final String token = SharedPreferences.getFlirtjarUserToken(getActivity());
+        if (token == null)
+        {
+            return;
+        }
+        if (call != null)
+        {
+            call.cancel();
+        }
         final RetrofitCallback<Cards> onGetCards = new RetrofitCallback<Cards>(getActivity())
         {
 

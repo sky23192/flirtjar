@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
@@ -49,7 +48,6 @@ import api.API;
 import api.RetrofitCallback;
 import apimodels.CreateUser;
 import apimodels.CreatedUser;
-import apimodels.UpdateUser;
 import apimodels.User;
 import apimodels.Views;
 import butterknife.BindView;
@@ -89,7 +87,7 @@ public class ActivityNavDrawer extends BaseActivity
     LinearLayout llChat;
     TextView tvUsername;
     ImageView ivProfilePicture;
-    int currentPage = 1;
+    int currentPage = -1;
 
     @BindView(R.id.drawer_layout)
     DrawerLayout drawer;
@@ -226,9 +224,6 @@ public class ActivityNavDrawer extends BaseActivity
             return;
         }
 
-        fragmentManager.beginTransaction()
-                .replace(R.id.fl_fragmentContainer, FragmentJar.newInstance())
-                .commitAllowingStateLoss();
 
         getFacebookProfileDetails();
     }
@@ -306,6 +301,8 @@ public class ActivityNavDrawer extends BaseActivity
                     App.getInstance().setUser(response.body());
                     getViews(App.getInstance().getUser().getResult().getId(),
                             flirtjarUserToken);
+
+
                 }
             }
 
@@ -432,26 +429,12 @@ public class ActivityNavDrawer extends BaseActivity
 
                 if (response.code() == HttpURLConnection.HTTP_CREATED || response.isSuccessful())
                 {
+                    SharedPreferences.setFlirtjarUserToken(ActivityNavDrawer.this,
+                            response.body().getResult().getToken());
 
-                    PreferenceManager.getDefaultSharedPreferences(ActivityNavDrawer.this)
-                            .edit()
-                            .putString(Constants.FLIRTJAR_USER_TOKEN, response.body().getResult().getToken())
-                            .apply();
-
-                    final String flirtjarUserToken = response.body().getResult().getToken();
-
-                    API.User.updateUserDetails(user, flirtjarUserToken,
-                            new RetrofitCallback<UpdateUser>(ActivityNavDrawer.this)
-                            {
-                            });
-
-
-                    getCurrentUser(flirtjarUserToken);
-
-                    Toast.makeText(ActivityNavDrawer.this, "User created successfully", Toast.LENGTH_SHORT).show();
+                    getCurrentUser(SharedPreferences.getFlirtjarUserToken(ActivityNavDrawer.this));
 
                     setupBottomBar(1);
-
                 }
             }
 
@@ -486,10 +469,9 @@ public class ActivityNavDrawer extends BaseActivity
             case 1:
                 if (currentPage != position)
                 {
-                    final FragmentJar fj = FragmentJar.newInstance();
                     currentPage = position;
                     fragmentManager.beginTransaction()
-                            .replace(R.id.fl_fragmentContainer, fj)
+                            .replace(R.id.fl_fragmentContainer, FragmentJar.newInstance())
                             .commitNow();
 
                 }

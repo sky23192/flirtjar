@@ -70,6 +70,7 @@
         <activity android:name=".ActivityHome"/>
         <activity
             android:name=".ActivitySetting"
+            android:screenOrientation="portrait"
             android:theme="@style/SettingTheme">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

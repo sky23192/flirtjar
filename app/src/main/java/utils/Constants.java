@@ -14,6 +14,8 @@ public class Constants
 
     public static final String FLIRTJAR_USER_TOKEN = "FLIRTJAR_USER_TOKEN";
 
+    public static final String FACEBOOK_USER_TOKEN = "FACEBOOK_USER_TOKEN";
+
     public static final String CONTENT_TYPE_JSON = "application/json";
 
     public static final String FCM_DEVICE_TOKEN = "FCM_DEVICE_TOKEN";

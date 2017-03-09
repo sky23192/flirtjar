@@ -25,10 +25,32 @@ public class SharedPreferences
         }
     }
 
+    public static void setFacebookUserToken(Context context, String token)
+    {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putString(Constants.FACEBOOK_USER_TOKEN, token)
+                .apply();
+    }
+
+    public static String getFacebookUserToken(Context context)
+    {
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getString(Constants.FACEBOOK_USER_TOKEN, null);
+    }
+
     public static String getFcmInstanceId(Context context)
     {
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getString(Constants.FCM_DEVICE_TOKEN, null);
+    }
+
+    public static void setFlirtjarUserToken(Context context, String token)
+    {
+        PreferenceManager.getDefaultSharedPreferences(context)
+                .edit()
+                .putString(Constants.FLIRTJAR_USER_TOKEN, token)
+                .apply();
     }
 
 

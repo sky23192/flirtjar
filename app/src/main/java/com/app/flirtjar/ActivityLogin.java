@@ -2,6 +2,7 @@ package com.app.flirtjar;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -22,6 +23,8 @@ import android.widget.Toast;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.Profile;
+import com.facebook.ProfileTracker;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.gun0912.tedpermission.PermissionListener;
@@ -32,6 +35,7 @@ import java.util.Arrays;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import utils.SharedPreferences;
 
 
 public class ActivityLogin extends Activity implements FacebookCallback<LoginResult>
@@ -47,10 +51,11 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
     ViewPager viewPager;
 
     CallbackManager callbackManager;
+    ProgressDialog mProgressDialog;
     private MyViewPagerAdapter myViewPagerAdapter;
     private TextView[] dots;
-    private int[] layouts;
     //  viewpager change listener
+    private int[] layouts;
     ViewPager.OnPageChangeListener viewPagerPageChangeListener = new ViewPager.OnPageChangeListener()
     {
 
@@ -82,6 +87,7 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
 
         }
     };
+    private ProfileTracker mProfileTracker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -202,13 +208,33 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
     @Override
     public void onSuccess(LoginResult loginResult)
     {
-        //CREATE NEW USER ON SERVER USIlogiNG API
-        Toast.makeText(this, "LOGIN SUCCESSFUL " + loginResult.getAccessToken().getToken(),
-                Toast.LENGTH_SHORT).show();
+        SharedPreferences.setFacebookUserToken(this, loginResult.getAccessToken().getToken());
 
-        Intent i = new Intent(this, ActivityNavDrawer.class);
-        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(i);
+        if (Profile.getCurrentProfile() == null)
+        {
+            showProgressDialog();
+            mProfileTracker = new ProfileTracker()
+            {
+                @Override
+                protected void onCurrentProfileChanged(Profile profile, Profile profile2)
+                {
+                    hideProgressDialog();
+                    // profile2 is the new profile
+                    Intent i = new Intent(ActivityLogin.this, ActivityNavDrawer.class);
+                    i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(i);
+                    mProfileTracker.stopTracking();
+                }
+            };
+            // no need to call startTracking() on mProfileTracker
+            // because it is called by its constructor, internally.
+        } else
+        {
+            Intent i = new Intent(this, ActivityNavDrawer.class);
+            i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(i);
+        }
+
 
     }
 
@@ -248,6 +274,33 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
                 }
             }
         }
+    }
+
+    private void showProgressDialog()
+    {
+        if (mProgressDialog == null)
+        {
+            mProgressDialog = new ProgressDialog(this);
+            mProgressDialog.setIndeterminate(true);
+            mProgressDialog.setMessage("Loading...");
+        }
+
+        mProgressDialog.show();
+    }
+
+    private void hideProgressDialog()
+    {
+        if (mProgressDialog != null && mProgressDialog.isShowing())
+        {
+            mProgressDialog.hide();
+        }
+    }
+
+    @Override
+    protected void onDestroy()
+    {
+        hideProgressDialog();
+        super.onDestroy();
     }
 
     /**
@@ -300,6 +353,4 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
             container.removeView(view);
         }
     }
-
-
 }
