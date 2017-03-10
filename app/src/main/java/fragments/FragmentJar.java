@@ -3,12 +3,10 @@ package fragments;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,11 +30,6 @@ import butterknife.OnClick;
 import dialogs.DialogSendGifts;
 import retrofit2.Call;
 import retrofit2.Response;
-import util.IabHelper;
-import util.IabResult;
-import util.Inventory;
-import util.Purchase;
-import utils.BillingDetailsConstants;
 import utils.SharedPreferences;
 
 /**
@@ -62,54 +55,7 @@ public class FragmentJar extends Fragment
     @BindView(R.id.iv_loadingGif)
     ImageView ivLoadingGif;
 
-    IabHelper mIabHelper;
-    IabHelper.OnConsumeFinishedListener onConsumeFinishedListener =
-            new IabHelper.OnConsumeFinishedListener()
-            {
-                @Override
-                public void onConsumeFinished(Purchase purchase, IabResult result)
-                {
-                    if (result.isSuccess())
-                    {
 
-                    } else
-                    {
-
-                    }
-                }
-            };
-    IabHelper.QueryInventoryFinishedListener queryInventoryFinishedListener =
-            new IabHelper.QueryInventoryFinishedListener()
-            {
-                @Override
-                public void onQueryInventoryFinished(IabResult result, Inventory inv)
-                {
-                    if (result.isFailure())
-                    {
-
-                    } else
-                    {
-                        mIabHelper.consumeAsync(inv.getPurchase(BillingDetailsConstants.ITEM_SKU),
-                                onConsumeFinishedListener);
-                    }
-                }
-            };
-    IabHelper.OnIabPurchaseFinishedListener onIabPurchaseFinishedListener =
-            new IabHelper.OnIabPurchaseFinishedListener()
-            {
-                @Override
-                public void onIabPurchaseFinished(IabResult result, Purchase purchase)
-                {
-                    if (result.isFailure())
-                    {
-                        return;
-                    } else if (purchase.getSku().equals(BillingDetailsConstants.ITEM_SKU))
-                    {
-                        consumeItem();
-
-                    }
-                }
-            };
     Call<Cards> call;
     private SwipePlaceHolderView mSwipeView;
     private Context mContext;
@@ -125,23 +71,6 @@ public class FragmentJar extends Fragment
     public void onCreate(@Nullable Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-
-        mIabHelper = new IabHelper(getActivity(), BillingDetailsConstants.base64EncodedPublicKey);
-
-        mIabHelper.startSetup(new IabHelper.OnIabSetupFinishedListener()
-        {
-            @Override
-            public void onIabSetupFinished(IabResult result)
-            {
-                if (result.isSuccess())
-                {
-                    Log.i(TAG, "IN APP BILLING SETUP OK");
-                } else
-                {
-                    Log.i(TAG, "IN APP BILLING SETUP FAILED");
-                }
-            }
-        });
 
     }
 
@@ -285,24 +214,8 @@ public class FragmentJar extends Fragment
     {
         final DialogSendGifts sendGifts = new DialogSendGifts(getActivity());
         sendGifts.show();
-
-        /*mIabHelper.launchPurchaseFlow(getActivity(), BillingDetailsConstants.ITEM_SKU
-                , 10001, onIabPurchaseFinishedListener, "mypurchasetoken");*/
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
-        if (!mIabHelper.handleActivityResult(requestCode, resultCode, data))
-        {
-            super.onActivityResult(requestCode, resultCode, data);
-        }
-    }
-
-    private void consumeItem()
-    {
-        mIabHelper.queryInventoryAsync(queryInventoryFinishedListener);
-    }
 
     private void showProgressDialog()
     {
@@ -327,11 +240,6 @@ public class FragmentJar extends Fragment
     @Override
     public void onDestroy()
     {
-        if (mIabHelper != null)
-        {
-            mIabHelper.dispose();
-            mIabHelper = null;
-        }
         if (call != null)
         {
             call.cancel();

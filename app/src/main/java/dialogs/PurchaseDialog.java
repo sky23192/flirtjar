@@ -2,12 +2,15 @@ package dialogs;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 
+import com.app.flirtjar.ActivityPurchaseCoins;
+import com.app.flirtjar.App;
 import com.app.flirtjar.R;
 
 import butterknife.BindView;
@@ -20,6 +23,7 @@ import butterknife.ButterKnife;
 public class PurchaseDialog extends Dialog
 {
 
+    private static final String TAG = App.APP_TAG + PurchaseDialog.class.getSimpleName();
     @BindView(R.id.btn_buy)
     Button btnBuy;
 
@@ -44,14 +48,26 @@ public class PurchaseDialog extends Dialog
 
         ButterKnife.bind(this);
 
+    }
+
+    @Override
+    public void onAttachedToWindow()
+    {
+        super.onAttachedToWindow();
         btnBuy.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View view)
             {
-                PurchaseDialog.this.dismiss();
+                getContext().startActivity(new Intent(getContext(), ActivityPurchaseCoins.class));
             }
         });
+    }
 
+
+    @Override
+    public void dismiss()
+    {
+        super.dismiss();
     }
 }
