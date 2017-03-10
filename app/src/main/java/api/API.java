@@ -3,6 +3,7 @@ package api;
 import apimodels.Cards;
 import apimodels.CreateUser;
 import apimodels.CreatedUser;
+import apimodels.Gift;
 import apimodels.NearByUser;
 import apimodels.NotificationDeviceDetails;
 import apimodels.UpdateUser;
@@ -119,6 +120,22 @@ public class API
             Call<ResponseBody> call = notifications.registerNotificationDevice(deviceDetails,
                     Constants.CONTENT_TYPE_JSON,
                     token);
+
+            call.enqueue(callback);
+
+            return call;
+        }
+
+    }
+
+    public static class Gifts
+    {
+        public static ApiInterface.Gifts gifts = ApiClient.getClient()
+                .create(ApiInterface.Gifts.class);
+
+        public static Call<Gift> getGifts(int page, String token, RetrofitCallback<Gift> callback)
+        {
+            Call<Gift> call = gifts.getGifts(page, token);
 
             call.enqueue(callback);
 

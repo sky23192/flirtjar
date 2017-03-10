@@ -29,6 +29,7 @@ import apimodels.Cards;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import dialogs.DialogSendGifts;
 import retrofit2.Call;
 import retrofit2.Response;
 import util.IabHelper;
@@ -282,8 +283,11 @@ public class FragmentJar extends Fragment
     @OnClick(R.id.ibtn_gift)
     public void sendGift()
     {
-        mIabHelper.launchPurchaseFlow(getActivity(), BillingDetailsConstants.ITEM_SKU
-                , 10001, onIabPurchaseFinishedListener, "mypurchasetoken");
+        final DialogSendGifts sendGifts = new DialogSendGifts(getActivity());
+        sendGifts.show();
+
+        /*mIabHelper.launchPurchaseFlow(getActivity(), BillingDetailsConstants.ITEM_SKU
+                , 10001, onIabPurchaseFinishedListener, "mypurchasetoken");*/
     }
 
     @Override
