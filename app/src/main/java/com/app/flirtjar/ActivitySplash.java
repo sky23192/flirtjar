@@ -37,9 +37,11 @@ public class ActivitySplash extends Activity
             @Override
             public void run()
             {
-                startActivity(new Intent(ActivitySplash.this, ActivityLogin.class));
+                Intent i = new Intent(ActivitySplash.this, ActivityLogin.class);
+                i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(i);
             }
-        }, 2000);
+        }, 1500);
 
     }
 }

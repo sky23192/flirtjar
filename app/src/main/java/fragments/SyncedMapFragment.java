@@ -40,7 +40,6 @@ public class SyncedMapFragment extends SupportMapFragment
     }
 
 
-
     public static class MapViewWrapper extends FrameLayout
     {
         private HashSet<MarkerAnimation> mAnimations = new HashSet<MarkerAnimation>();

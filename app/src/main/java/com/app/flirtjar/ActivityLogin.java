@@ -2,6 +2,7 @@ package com.app.flirtjar;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -22,6 +23,8 @@ import android.widget.Toast;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.Profile;
+import com.facebook.ProfileTracker;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.gun0912.tedpermission.PermissionListener;
@@ -32,6 +35,7 @@ import java.util.Arrays;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import utils.SharedPreferences;
 
 
 public class ActivityLogin extends Activity implements FacebookCallback<LoginResult>
@@ -40,9 +44,6 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
     @BindView(R.id.btn_fbLogin)
     LoginButton btnFbLogin;
 
-    @BindView(R.id.tv_lbl)
-    TextView tv_lbl;
-
     @BindView(R.id.layout_dots)
     LinearLayout dotsLayout;
 
@@ -50,10 +51,11 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
     ViewPager viewPager;
 
     CallbackManager callbackManager;
+    ProgressDialog mProgressDialog;
     private MyViewPagerAdapter myViewPagerAdapter;
     private TextView[] dots;
-    private int[] layouts;
     //  viewpager change listener
+    private int[] layouts;
     ViewPager.OnPageChangeListener viewPagerPageChangeListener = new ViewPager.OnPageChangeListener()
     {
 
@@ -85,6 +87,7 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
 
         }
     };
+    private ProfileTracker mProfileTracker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -130,8 +133,12 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
         new TedPermission(this)
                 .setPermissionListener(permissionlistener)
                 .setPermissions(Manifest.permission.CALL_PHONE,
-                        Manifest.permission.ACCESS_NETWORK_STATE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE,
-                        Manifest.permission.ACCESS_WIFI_STATE, Manifest.permission.NFC)
+                        Manifest.permission.ACCESS_NETWORK_STATE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.ACCESS_WIFI_STATE)
                 .check();
 
 
@@ -140,8 +147,8 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
         layouts = new int[]{
                 R.layout.welcome_slide1,
                 R.layout.welcome_slide2,
-                R.layout.welcome_slide1,
-                R.layout.welcome_slide2};
+                R.layout.welcome_slide3,
+                R.layout.welcome_slide4};
 
         // adding bottom dots
         addBottomDots(0);
@@ -152,20 +159,6 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
         myViewPagerAdapter = new MyViewPagerAdapter();
         viewPager.setAdapter(myViewPagerAdapter);
         viewPager.addOnPageChangeListener(viewPagerPageChangeListener);
-
-
-        Typeface face = Typeface.createFromAsset(getAssets(), "font/Pacifico-Regular.ttf");
-        tv_lbl.setTypeface(face);
-
-        btnFbLogin.setOnClickListener(new View.OnClickListener()
-        {
-
-            @Override
-            public void onClick(View v)
-            {
-                Toast.makeText(ActivityLogin.this, "CLICKED", Toast.LENGTH_LONG).show();
-            }
-        });
 
         callbackManager = CallbackManager.Factory.create();
 
@@ -215,10 +208,33 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
     @Override
     public void onSuccess(LoginResult loginResult)
     {
-        //CREATE NEW USER ON SERVER USING API
-        Toast.makeText(this, "LOGIN SUCCESSFUL " + loginResult.getAccessToken().getToken(),
-                Toast.LENGTH_SHORT).show();
-        startActivity(new Intent(ActivityLogin.this, ActivityHome.class));
+        SharedPreferences.setFacebookUserToken(this, loginResult.getAccessToken().getToken());
+
+        if (Profile.getCurrentProfile() == null)
+        {
+            showProgressDialog();
+            mProfileTracker = new ProfileTracker()
+            {
+                @Override
+                protected void onCurrentProfileChanged(Profile profile, Profile profile2)
+                {
+                    hideProgressDialog();
+                    // profile2 is the new profile
+                    Intent i = new Intent(ActivityLogin.this, ActivityNavDrawer.class);
+                    i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(i);
+                    mProfileTracker.stopTracking();
+                }
+            };
+            // no need to call startTracking() on mProfileTracker
+            // because it is called by its constructor, internally.
+        } else
+        {
+            Intent i = new Intent(this, ActivityNavDrawer.class);
+            i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(i);
+        }
+
 
     }
 
@@ -241,6 +257,52 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
         callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
+    public void changeFontForAllTextViews(LinearLayout layout)
+    {
+        final Typeface pacifico = Typeface.createFromAsset(getAssets(), "fonts/Pacifico-Regular.ttf");
+        final Typeface montserrat = Typeface.createFromAsset(getAssets(), "fonts/Montserrat-Regular.ttf");
+
+        for (int i = 0; i < layout.getChildCount(); i++)
+        {
+            View v = layout.getChildAt(i);
+            if (v instanceof TextView)
+            {
+                ((TextView) v).setTypeface(pacifico);
+                if (v.getId() == R.id.tv_lbl32)
+                {
+                    ((TextView) v).setTypeface(montserrat);
+                }
+            }
+        }
+    }
+
+    private void showProgressDialog()
+    {
+        if (mProgressDialog == null)
+        {
+            mProgressDialog = new ProgressDialog(this);
+            mProgressDialog.setIndeterminate(true);
+            mProgressDialog.setMessage("Loading...");
+        }
+
+        mProgressDialog.show();
+    }
+
+    private void hideProgressDialog()
+    {
+        if (mProgressDialog != null && mProgressDialog.isShowing())
+        {
+            mProgressDialog.hide();
+        }
+    }
+
+    @Override
+    protected void onDestroy()
+    {
+        hideProgressDialog();
+        super.onDestroy();
+    }
+
     /**
      * View pager adapter
      */
@@ -258,6 +320,14 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
             layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
             View view = layoutInflater.inflate(layouts[position], container, false);
+
+            LinearLayout layout = (LinearLayout) view.findViewById(R.id.ll_welcomeSlide);
+
+            if (layout != null)
+            {
+                changeFontForAllTextViews(layout);
+            }
+
             container.addView(view);
 
             return view;
@@ -283,6 +353,4 @@ public class ActivityLogin extends Activity implements FacebookCallback<LoginRes
             container.removeView(view);
         }
     }
-
-
 }

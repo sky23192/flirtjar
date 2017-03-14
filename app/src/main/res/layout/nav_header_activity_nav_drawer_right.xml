@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:paddingBottom="10dp"
+
+    tools:ignore="MissingPrefix">
+
+    <TextView
+        android:id="@+id/ib_settings"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_marginBottom="5dp"
+        android:layout_marginTop="30dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:drawableLeft="@drawable/ic_notifications_none_black_24dp"
+        android:gravity="center"
+        android:padding="20dp"
+        android:scaleType="centerInside"
+        android:text="Notifications"
+        android:textColor="#333333"
+        android:textSize="18sp"/>
+
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_notifications"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="20dp"/>
+
+
+</LinearLayout>

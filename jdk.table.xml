@@ -289,8 +289,10 @@
             <root type="simple" url="jar://$APPLICATION_HOME_DIR$/jre/jre/lib/ext/sunec.jar!/"/>
             <root type="simple"
                   url="jar://$APPLICATION_HOME_DIR$/jre/jre/lib/ext/sunjce_provider.jar!/"/>
-            <root type="simple" url="jar://$APPLICATION_HOME_DIR$/jre/jre/lib/ext/sunmscapi.jar!/"/>
-            <root type="simple" url="jar://$APPLICATION_HOME_DIR$/jre/jre/lib/ext/sunpkcs11.jar!/"/>
+            <root type="simple"
+                  url="jar://$APPLICATION_HOME_DIR$/jre/jre/lib/ext/sunmscapi.jar!/"/>
+            <root type="simple"
+                  url="jar://$APPLICATION_HOME_DIR$/jre/jre/lib/ext/sunpkcs11.jar!/"/>
             <root type="simple" url="jar://$APPLICATION_HOME_DIR$/jre/jre/lib/ext/zipfs.jar!/"/>
             <root type="simple" url="jar://$APPLICATION_HOME_DIR$/jre/jre/lib/jce.jar!/"/>
             <root type="simple" url="jar://$APPLICATION_HOME_DIR$/jre/jre/lib/jsse.jar!/"/>
